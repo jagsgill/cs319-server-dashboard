@@ -89,7 +89,7 @@ DATABASES = {
         'NAME' : 'my_database',
         'USER': 'mydatabaseuser',
         'PASSWORD': 'mypassword',
-        'HOST': '127.0.0.1',
+        'HOST': '127.0.0',
    }
 }
 

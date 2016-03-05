@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.db import models
 from djangotoolbox.fields import EmbeddedModelField
 
+from djangotoolbox.fields import DateTimeField
 # Create your models here.
 
 class AccelerometerPayload(models.Model):
@@ -19,6 +20,6 @@ class WatchEvent(models.Model):
     accelerometerPayload = ListField(EmbeddedModelField('AccelerometerPayload'))
     location = ListField(EmbeddedModelField('Location'))
 
-class Device(models.Model):
-    deviceId = DecimalField()
-    watchEvents = ListField(EmbeddedModelField('WatchEvent'))
+# class Device(models.Model):
+    # deviceId = DecimalField()
+    # watchEvents = ListField(EmbeddedModelField('WatchEvent'))
