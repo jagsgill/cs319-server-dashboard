@@ -22,4 +22,3 @@ class WatchEvent(models.Model):
 class Device(models.Model):
     deviceId = DecimalField()
     watchEvents = ListField(EmbeddedModelField('WatchEvent'))
-    
