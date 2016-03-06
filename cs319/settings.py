@@ -61,10 +61,11 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'cs319.urls'
 
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['cs319/web_app/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

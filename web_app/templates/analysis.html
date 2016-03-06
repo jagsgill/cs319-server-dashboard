@@ -67,8 +67,14 @@
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
         <h1>Analysis & Reporting Dashboard</h1>
-        <p>Device ID: XX</p>
-        <p>Start Date: <input type="text" id="startDate"> End Date: <input type="text" id="endDate"></p>
+
+          <ul>
+            {% for device in device_list %}
+            <li>{{ device._id}}</li>
+            {% endfor %}
+          </ul>
+
+          <p>Start Date: <input type="text" id="startDate"> End Date: <input type="text" id="endDate"></p>
         <p>Sensor Type</p>
         <p>Analysis Type</p>
         <p>
