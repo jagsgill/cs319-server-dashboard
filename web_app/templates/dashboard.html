@@ -69,15 +69,13 @@
       <div class="jumbotron">
         <h1>Analysis & Reporting Dashboard</h1>
         <p>IoT Smartwatches</p>
-        <p> Device ID 01:
-          <a class="btn btn-primary" href="analysis.html" role="button">Analyze &raquo;</a>
-        </p>
-        <p> Device ID 02:
-          <a class="btn btn-primary" href="analysis.html" role="button">Analyze &raquo;</a>
-        </p>
-        <p> Device ID 03:
-          <a class="btn btn-primary" href="analysis.html" role="button">Analyze &raquo;</a>
-        </p>
+
+          <ul>
+            {% for device in device_list %}
+            <li>{{ device.lon}}</li>
+            {% endfor %}
+          </ul>
+
       </div>
 
     </div> <!-- /container -->

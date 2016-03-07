@@ -4,12 +4,14 @@ from django.db import models
 from djangotoolbox.fields import EmbeddedModelField
 from djangotoolbox.fields import ListField
 
+# from django_mongodb_engine import *
+
 # Create your models here.
 
 class AccelerometerPayload(models.Model):
-    x = models.FloatField(null=True)
-    y = models.FloatField(null=True)
-    z = models.FloatField(null=True)
+    x = models.FloatField(null=False)
+    y = models.FloatField(null=False)
+    z = models.FloatField(null=False)
 
 class Location(models.Model):
     lat = models.FloatField()
@@ -21,5 +23,5 @@ class WatchEvent(models.Model):
     location = ListField(EmbeddedModelField('Location'))
 
 class Device(models.Model):
-    _id = models.DecimalField(null=True)
+    device_id = models.DecimalField(null=False)
     watch_events = ListField(EmbeddedModelField('WatchEvent'))

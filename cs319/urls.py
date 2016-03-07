@@ -18,8 +18,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^watch/', include('web_app.urls')),
-    url(r'^analysis/', include('web_app.urls')),
+    # url(r'^watch/', include('web_app.urls')),
+    url(r'^dashboard/', include('web_app.urls')),
     url(r'^admin/', admin.site.urls),
 
 ]

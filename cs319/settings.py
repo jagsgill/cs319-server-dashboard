@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -61,11 +60,11 @@ MIDDLEWARE_CLASSES = [
 
 ROOT_URLCONF = 'cs319.urls'
 
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['cs319/web_app/templates'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -86,11 +85,12 @@ WSGI_APPLICATION = 'cs319.wsgi.application'
 
 DATABASES = {
    'default' : {
-        'ENGINE' : 'django_mongodb_engine',
-        'NAME' : 'my_database',
-        'USER': 'mydatabaseuser',
-        'PASSWORD': 'mypassword',
-        'HOST': '127.0.0',
+        'ENGINE' :  'django_mongodb_engine',
+        'NAME' :    'my_database',
+        'USER':     'mydatabaseuser',
+        # 'PASSWORD': 'mypassword',
+        # 'HOST':     '127.0.0',
+       # 'timeout': 200,
    }
 }
 
@@ -132,3 +132,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# New Stuff Added by cs319 Team
+# ==================================================================
+# template path for web_app
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'web_app/templates'),)
+
+# fixture path for web_app
+FIXTURE_DIRS = (os.path.join(BASE_DIR, "fixtures",),)
