@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from models import Device
-from models import Location
+
 
 # Create your views here.
 
@@ -9,7 +9,9 @@ from models import Location
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
+
 # analysis page
-def getDevices(request):
-    device_list = Location.objects.all()
+# TODO make query only get unique IDs
+def get_device_ids(request):
+    device_list = Device.objects.values('device_id').order_by('device_id')
     return render(request, 'dashboard.html', {'device_list': device_list})

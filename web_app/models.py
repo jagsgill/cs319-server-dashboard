@@ -14,8 +14,8 @@ class AccelerometerPayload(models.Model):
     z = models.FloatField(null=False)
 
 class Location(models.Model):
-    lat = models.FloatField()
-    lon = models.FloatField()
+    lat = models.FloatField(null=True)
+    lon = models.FloatField(null=True)
 
 class WatchEvent(models.Model):
     timeStamp = models.DateTimeField()
@@ -23,5 +23,5 @@ class WatchEvent(models.Model):
     location = ListField(EmbeddedModelField('Location'))
 
 class Device(models.Model):
-    device_id = models.DecimalField(null=False)
+    device_id = models.IntegerField(null=False)
     watch_events = ListField(EmbeddedModelField('WatchEvent'))

@@ -1,19 +1,11 @@
-[{
-	"model": "web_app.device",
-    "pk": 0,
-    "fields":{
-		"device_id": 420,
-		"watch_events": [{
-			"timestamp": "2014-12-17T21:11:23:148Z",
-			"accelerometer_payload" : {
-				"x": 0.34121321,
-				"y": 0.46435345,
-				"z": 0.64554634
-			},
-			"location": {
-				"lat": 0.6754654,
-				"lon": 1.345435
-			}
+[
+	{
+		"model": "web_app.accelerometer_payload",
+		"pk": 1,
+		"fields": {
+			"y": 0.132321,
+			"x": 0.1321,
+			"z": 0.5435,
 		}
-	]}
-}]
+	}
+]
