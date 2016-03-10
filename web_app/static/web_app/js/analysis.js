@@ -1,87 +1,110 @@
 $(document).ready(function () {
 
-	// $('#generateGraph').on('click', function (ev) {
-	// 	var data = [4, 8, 15, 16, 23, 42];
+  $("#startDate").datepicker();
+  $("#endDate").datepicker();
 
-	// 	var x = d3.scale.linear()
-	// 	    .domain([0, d3.max(data)])
-	// 	    .range([0, 420]);
+  var interval;
+  $('#generateGraph').on('click', function (ev) {
+    updateGraph();
+    if(interval) {
+        clearInterval(interval);
+    }
+    interval=setInterval(function() {update()}, 3000);
+  });
 
-	// 	d3.select(".chart")
-	// 	  .selectAll("div")
-	// 	    .data(data)
-	// 	  .enter().append("div")
-	// 	    .style("width", function(d) { return x(d) + "px"; })
-	// 	    .text(function(d) { return d; });
-	// })
+    function updateGraph() {
+    console.log("updating graph");
+    $('#lineChart').empty();
+    var data = getData(data);
+    var dataGroup = d3.nest().key(function(d) {return d.deviceID;}).entries(data);
+    var color = d3.scale.category10();
+    var vis = d3.select("#lineChart"),
+    WIDTH = 1000,
+    HEIGHT = 500,
+    MARGINS = {
+        top: 50,
+        right: 20,
+        bottom: 50,
+        left: 50
+    },
 
-    $("#startDate").datepicker();
-    $("#endDate").datepicker();
+    lSpace = WIDTH/dataGroup.length;
 
+    xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
+                            return d.timestamp;
+                        }), d3.max(data, function(d) {
+                            return d.timestamp;
+                        })]),
+    yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
+                            return d.acceleration;
+                        }), d3.max(data, function(d) {
+                            return d.acceleration;
+                        })]),
+    xAxis = d3.svg.axis().scale(xScale),
+    yAxis = d3.svg.axis().scale(yScale).orient("left");
+    vis.append("svg:g").attr("class","axis").attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")").call(xAxis);
+    vis.append("svg:g").attr("class","axis").attr("transform", "translate(" + (MARGINS.left) + ",0)").call(yAxis);
+    var lineGen = d3.svg.line()
+    .x(function(d) {
+        return xScale(d.timestamp);
+    })
+    .y(function(d) {
+        return yScale(d.acceleration);
+    })
+    .interpolate("basis");
+    dataGroup.forEach(function(d,i) {
+                        vis.append('svg:path')
+                        .attr('d', lineGen(d.values))
+                        .attr('stroke', function(d,j) { 
+                                return "hsl(" + Math.random() * 360 + ",100%,50%)";
+                        })
+                        .attr('stroke-width', 2)
+                        .attr('id', 'line_'+d.key)
+                        .attr('fill', 'none');
+                        vis.append("text")
+                            .attr("x", (lSpace/2)+i*lSpace)
+                            .attr("y", HEIGHT)
+                            .style("fill", "black")
+                            .attr("class","legend")
+                            .on('click',function(){
+                                var active   = d.active ? false : true;
+                                var opacity = active ? 0 : 1;
+                                d3.select("#line_" + d.key).style("opacity", opacity);
+                                d.active = active;
+                            })
+                            .text(d.key);
+                    });
+    }
 
-$('#generateGraph').on('click', function (ev) {
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-width = 960 - margin.left - margin.right,
-height = 500 - margin.top - margin.bottom;
+    function update() {
+        updateGraph();
+    }
 
-var formatDate = d3.time.format("%d-%b-%y");
+    function toDate(unix_tm) {
+        var a = new Date(unix_tm * 1000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var day = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
+        var time = month + ' ' + day + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+        return time;
+    }
 
-var x = d3.time.scale()
-    .range([0, width]);
+  function getData(data) {
+    var data = [
+    {"deviceID": "watch999","timestamp":1000098160,"x":1,"y":2,"z":14,"latitude":169,"longitude":105,"acceleration":14.177446878757825},
+    {"deviceID": "watch999","timestamp":1000107500,"x":2,"y":2,"z":6,"latitude":154,"longitude":101,"acceleration":6.6332495807108},
+    {"deviceID": "watch999","timestamp":1000123460,"x":8,"y":2,"z":9,"latitude":152,"longitude":103,"acceleration":12.206555615733702},
+    {"deviceID": "watch999","timestamp":1000246750,"x":3,"y":2,"z":9,"latitude":151,"longitude":103,"acceleration":9.695359714832659},
+    {"deviceID": "watch999","timestamp":1000264100,"x":4,"y":2,"z":13,"latitude":164,"longitude":92,"acceleration":13.74772708486752},
+    {"deviceID": "watch999","timestamp":1000284000,"x":0,"y":2,"z":14,"latitude":170,"longitude":93,"acceleration":14.142135623730951},
+    {"deviceID": "watch999","timestamp":1000319630,"x":3,"y":2,"z":6,"latitude":178,"longitude":107,"acceleration":7.0}
+    ];
 
-var y = d3.scale.linear()
-    .range([height, 0]);
-
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
-
-var line = d3.svg.line()
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.close); });
-
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-d3.tsv("data.tsv", type, function(error, data) {
-  if (error) throw error;
-
-  x.domain(d3.extent(data, function(d) { return d.date; }));
-  y.domain(d3.extent(data, function(d) { return d.close; }));
-
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Price ($)");
-
-  svg.append("path")
-      .datum(data)
-      .attr("class", "line")
-      .attr("d", line);
-});
-});
-
-function type(d) {
-  d.date = formatDate.parse(d.date);
-  d.close = +d.close;
-  return d;
-}
+    return data;
+  }
 
 });

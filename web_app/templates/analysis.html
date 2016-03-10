@@ -67,14 +67,23 @@
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
         <h1>Analysis & Reporting Dashboard</h1>
-          <p>Start Date: <input type="text" id="startDate"> End Date: <input type="text" id="endDate"></p>
-          <p>Sensor Type</p>
-          <p>Analysis Type</p>
-          <p>
+        <p>Device ID: XX</p>
+        <p>Start Date: <input type="text" id="startDate"> End Date: <input type="text" id="endDate"></p>
+        <p>Sensor Type 
+          <select class="form-control">
+            <option>Accelerometer</option>
+          </select> 
+        </p>
+        <p>Analysis Type
+          <select class="form-control">
+            <option>Line Chart</option>
+          </select> 
+        </p>
+        <p>
           <a id="generateGraph" class="btn btn-lg btn-primary" href="#" role="button">Generate Graph &raquo;</a>
         </p>
         <div class="chart">
-          <h3>Test</h3>
+          <svg id="lineChart" width="1000" height="500"></svg>
         </div>
       </div>
 
