@@ -40,9 +40,9 @@ $(document).ready(function () {
                             return d.accelTime;
                         })]),
     yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
-                            return d.xAccel;
+                            return d.accel;
                         }), d3.max(data, function(d) {
-                            return d.xAccel;
+                            return d.accel;
                         })]),
     xAxis = d3.svg.axis().scale(xScale),
     yAxis = d3.svg.axis().scale(yScale).orient("left");
@@ -53,16 +53,19 @@ $(document).ready(function () {
         return xScale(d.accelTime);
     })
     .y(function(d) {
-        return yScale(d.xAccel);
+        return yScale(d.accel);
     })
     .interpolate("basis");
     dataGroup.forEach(function(d,i) {
                         vis.append('svg:path')
                         .attr('d', lineGen(d.values))
-                        .attr('stroke', 'blue')
-                        .attr('stroke-width', 3)
+                        .attr('stroke', function(){
+                        return "hsl(" + i*(360/dataGroup.length) + ",100%,50%)";
+                        })
+                        .attr('stroke-width', 1)
                         .attr('id', 'line_'+d.key)
-                        .attr('fill', 'none');
+                        .attr('fill', 'none')
+                        .attr('opacity', 0.5);
                         vis.append("text")
                             .attr("x", (lSpace/2)+i*lSpace)
                             .attr("y", HEIGHT)
@@ -98,8 +101,14 @@ $(document).ready(function () {
   function getData() {
   console.log("getting data");
     d3.json("http://localhost:8000/dashboard/live", function(error, json){
-    updateGraph(json);
-    console.log(json);});
+    var newData=[];
+    json.forEach(function(d){
+    newData.push({"deviceId":d.deviceId+"x","accelTime":d.accelTime,"accel":d.xAccel});
+    newData.push({"deviceId":d.deviceId+"y","accelTime":d.accelTime,"accel":d.yAccel});
+    newData.push({"deviceId":d.deviceId+"z","accelTime":d.accelTime,"accel":d.zAccel});
+    });
+    updateGraph(newData);
+    console.log(newData);});
   }
 
 });
