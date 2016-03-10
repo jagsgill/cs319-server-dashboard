@@ -10,7 +10,7 @@ $(document).ready(function () {
     if(interval) {
         clearInterval(interval);
     }
-    interval=setInterval(function() {update()}, 3000);
+    interval=setInterval(function() {update()}, 1000);
   });
 
     function updateGraph(data) {

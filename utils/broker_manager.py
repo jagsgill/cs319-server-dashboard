@@ -25,31 +25,37 @@ def on_connect(client, userdata, rc):
 def on_message(client, userdata, msg):
     print ('Topic: ', msg.topic, '\nMessage: ', str(msg.payload))
 
-    arr = [x.strip() for x in str(msg.payload).split(',')]
-    devId = (arr[0])
-    accelTime = arr[1]
-    x = arr[2]
-    y = arr[3]
-    z = arr[4]
-    gpsTime = arr[5]
-    lat = arr[6]
-    long = arr[7]
+    messages = [x.strip() for x in str(msg.payload).split('$')]
+    print("%%%%%" + str(messages))
+    messages = messages[:-1]
 
-    # dm = DataManager()
-    # dm.insertDeviceData(devId,tmStmp,x,y,z,lat,long)
+    for msg in messages:
+        arr = [x.strip() for x in msg.split(',')]
+        print(arr)
+        devId = str(arr[0])
+        accelTime = str(arr[1])
+        x = float(arr[2])
+        print(str(msg[2]))
+        print("***********" + str(arr[3]))
+        print(str(arr[4]))
+        y = float(arr[3])
+        z = float(arr[4])
+        gpsTime = int(arr[5])
+        lat = float(arr[6])
+        long = float(arr[7])
 
-    datapoint = DataPoint(
-    deviceId = devId,
-    accelTime = accelTime,
-    xAccel = x,
-    yAccel = y,
-    zAccel = z,
-    gpsTime = gpsTime,
-    lat = lat,
-    long = long
-    )
+        datapoint = DataPoint(
+        deviceId = devId,
+        accelTime = accelTime,
+        xAccel = x,
+        yAccel = y,
+        zAccel = z,
+        gpsTime = gpsTime,
+        lat = lat,
+        long = long
+        )
 
-    datapoint.save()
+        datapoint.save()
 
     return
 
