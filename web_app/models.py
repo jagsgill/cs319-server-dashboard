@@ -25,3 +25,16 @@ class WatchEvent(models.Model):
 class Device(models.Model):
     device_id = models.DecimalField(null=False)
     watch_events = ListField(EmbeddedModelField('WatchEvent'))
+
+class DataPoint(models.Model):
+    deviceId = models.CharField()
+
+    accelTime = models.IntegerField()
+    xAccel = models.FloatField();
+    yAccel = models.FloatField();
+    zAccel = models.FloatField();
+
+    gpsTime = models.IntegerField();
+    lat = models.FloatField()
+    long = models.FloatField()
+

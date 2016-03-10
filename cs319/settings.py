@@ -89,7 +89,7 @@ DATABASES = {
         'NAME' :    'my_database',
         'USER':     'mydatabaseuser',
         # 'PASSWORD': 'mypassword',
-        # 'HOST':     '127.0.0',
+        'HOST':     '0.0.0.0:27017',
        # 'timeout': 200,
    }
 }
@@ -127,11 +127,25 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Additional locations of static files
+STATICFILES_DIRS = (
+# Put strings here, like "/home/html/static" or "C:/www/django/static".
+# Always use forward slashes, even on Windows.
+# Don't forget to use absolute paths, not relative paths.
+'/vagrant/synced_data/cs319-server-webApp/web_app/static/css/',
+'/vagrant/synced_data/cs319-server-webApp/web_app/static/js/'
+)
+
+# Absolute path to the directory static files should be collected to.
+# Don't put anything in this directory yourself; store your static files
+# in apps' "static/" subdirectories and in STATICFILES_DIRS.
+# Example: "/home/media/media.lawrence.com/static/"
+STATIC_ROOT = '/vagrant/synced_data/cs319-server-webApp/static_root/'
 
 
 # New Stuff Added by cs319 Team
