@@ -23,7 +23,7 @@ $(document).ready(function () {
     console.log("can i get here");
     var color = d3.scale.category10();
     var vis = d3.select("#lineChart"),
-    WIDTH = 1000,
+    WIDTH = 800,
     HEIGHT = 500,
     MARGINS = {
         top: 50,
@@ -59,10 +59,8 @@ $(document).ready(function () {
     dataGroup.forEach(function(d,i) {
                         vis.append('svg:path')
                         .attr('d', lineGen(d.values))
-                        .attr('stroke', function(d,j) { 
-                                return "hsl(" + Math.random() * 360 + ",100%,50%)";
-                        })
-                        .attr('stroke-width', 2)
+                        .attr('stroke', 'blue')
+                        .attr('stroke-width', 3)
                         .attr('id', 'line_'+d.key)
                         .attr('fill', 'none');
                         vis.append("text")

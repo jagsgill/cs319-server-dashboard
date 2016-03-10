@@ -30,11 +30,11 @@ class DataPoint(models.Model):
     deviceId = models.CharField()
 
     accelTime = models.IntegerField()
-    xAccel = models.FloatField();
-    yAccel = models.FloatField();
-    zAccel = models.FloatField();
+    xAccel = models.FloatField()
+    yAccel = models.FloatField()
+    zAccel = models.FloatField()
 
-    gpsTime = models.IntegerField();
-    lat = models.FloatField()
-    long = models.FloatField()
+    gpsTime = models.IntegerField()
+    lat = models.FloatField(null=True)
+    long = models.FloatField(null=True)
 

@@ -36,7 +36,7 @@ def demo(request):
 
 def live(request):
     desired_device = 'watch999'  # watch id
-    xAccel = DataPoint.objects.filter(deviceId = 'watch999').values('deviceId', 'accelTime', 'xAccel', 'yAccel', 'zAccel')
+    xAccel = DataPoint.objects.values('deviceId', 'accelTime', 'xAccel', 'yAccel', 'zAccel')
     str = json.dumps(list(xAccel), cls=DjangoJSONEncoder)
     print(str)
     return HttpResponse(str, content_type='application/json; charset=utf8')
