@@ -1,9 +1,17 @@
 
 # -*- coding: utf-8 -*-
-
-# Code from https://sakshambhatla.wordpress.com/2014/08/11/simple-mqtt-broker-and-client-in-python/
+import sys
+import os
 import paho.mqtt.client as mqtt
-# from web_app.models import Device
+
+# add paths so we can import some modules from our project and set the settings environment variable
+sys.path.append('/vagrant/synced_data/cs319-server-webApp/cs319')
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+from django.conf import settings
+sys.path.append("/vagrant/synced_data/cs319-server-webApp")
+from web_app.models import DataPoint
+
+# ------------------------------------------------------------------------------
 
 # The callback for when the client receives a CONNACK response from the server.
 # Subscribing in on_connect() means that if we lose the connection and
@@ -16,21 +24,36 @@ def on_connect(client, userdata, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
     print ('Topic: ', msg.topic, '\nMessage: ', str(msg.payload))
-    print("Peter:" + str(msg.payload))
+
     arr = [x.strip() for x in str(msg.payload).split(',')]
-    devId = (arr[0])[2:]
-    tmStmp = arr[1]
+    devId = (arr[0])
+    accelTime = arr[1]
     x = arr[2]
     y = arr[3]
     z = arr[4]
-    lat = arr[5]
-    long = arr[6]
-
+    gpsTime = arr[5]
+    lat = arr[6]
+    long = arr[7]
 
     # dm = DataManager()
     # dm.insertDeviceData(devId,tmStmp,x,y,z,lat,long)
+
+    datapoint = DataPoint(
+    deviceId = devId,
+    accelTime = accelTime,
+    xAccel = x,
+    yAccel = y,
+    zAccel = z,
+    gpsTime = gpsTime,
+    lat = lat,
+    long = long
+    )
+
+    datapoint.save()
+
     return
 
+# MQTT connection
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message

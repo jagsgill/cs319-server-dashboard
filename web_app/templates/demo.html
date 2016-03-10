@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <!--link rel="icon" href="../../favicon.ico"-->
+
+  <title>IoT Smartwatches</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/static/web_app/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <!-- link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet" -->
+
+  <!-- Custom styles for this template -->
+  <link href="/static/web_app/css/dashboard.css" rel="stylesheet">
+</head>
+
+<style>
+  .axis path {
+    fill: none;
+    stroke: #777;
+    shape-rendering: crispEdges;
+   }
+  .axis text {
+    font-family: Lato;
+    font-size: 13px;
+  }
+</style>
+
+
+<body>
+
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">IoT Smartwatches</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <!-- li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="dropdown-header">Nav header</li>
+            <li><a href="#">Separated link</a></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li -->
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <!-- li><a href="../navbar/">Default</a></li>
+        <li><a href="../navbar-static-top/">Static top</a></li>
+        <li class="active"><a href="./">Fixed top <span class="sr-only">(current)</span></a></li -->
+        <li><a href="signIn.html">Logout</a></li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div>
+</nav>
+
+<!--<div class="container">-->
+
+<!--&lt;!&ndash; Main component for a primary marketing message or call to action &ndash;&gt;-->
+<!--<div class="jumbotron">-->
+<!--<h1>Analysis & Reporting Dashboard</h1>-->
+<!--<p>IoT Smartwatches</p>-->
+
+<!--<ul>-->
+<!--{% for datapoint in data_set %}-->
+<!--<li>{{ datapoint.xAccel }}</li>-->
+<!--{% endfor %}-->
+<!--</ul>-->
+
+<!--</div>-->
+
+<!--</div> &lt;!&ndash; /container &ndash;&gt;-->
+
+<!-- Updating graph code adapted from here: https://bl.ocks.org/mbostock/3808218 -->
+<!-- Line graph code adapted from here: http://code.tutsplus.com/tutorials/building-a-multi-line-chart-using-d3js--cms-22935 -->
+
+<svg id="visualisation" width="1000" height="500"></svg>
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+console.log('1')
+    var data1 = [{
+    "sale": "202",
+    "year": "2000"
+    }, {
+    "sale": "215",
+    "year": "2001"
+    }, {
+    "sale": "179",
+    "year": "2002"
+    }, {
+    "sale": "199",
+    "year": "2003"
+    }, {
+    "sale": "134",
+    "year": "2003"
+    }, {
+    "sale": "176",
+    "year": "2010"
+    }];
+
+    var data2 = [{
+    "sale": "152",
+    "year": "2000"
+    }, {
+    "sale": "189",
+    "year": "2002"
+    }, {
+    "sale": "179",
+    "year": "2004"
+    }, {
+    "sale": "199",
+    "year": "2006"
+    }, {
+    "sale": "134",
+    "year": "2008"
+    }, {
+    "sale": "176",
+    "year": "2010"
+    }];
+
+    var vis = d3.select("#visualisation"),
+    WIDTH = 1000,
+    HEIGHT = 500,
+    MARGINS = {
+        top: 20,
+        right: 20,
+        bottom: 20,
+        left: 50
+    };
+console.log('2')
+    xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([2000,2010]);
+    yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([134,215]);
+
+    xAxis = d3.svg.axis()
+      .scale(xScale);
+
+    yAxis = d3.svg.axis()
+      .scale(yScale);
+
+    yAxis = d3.svg.axis()
+      .scale(yScale)
+      .orient("left");
+
+    vis.append("svg:g")
+      .attr("class","axis")
+      .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+      .call(xAxis);
+
+    vis.append("svg:g")
+      .attr("class","axis")
+      .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+      .call(yAxis);
+
+    var lineGen = d3.svg.line()
+      .x(function(d) {
+        return xScale(d.year);
+      })
+      .y(function(d) {
+        return yScale(d.sale);
+      })
+      .interpolate("basis");
+console.log('3')
+    vis.append('svg:path')
+      .attr('d', lineGen(data1))
+      .attr('stroke', 'green')
+      .attr('stroke-width', 2)
+      .attr('fill', 'none');
+
+    vis.append('svg:path')
+      .attr('d', lineGen(data2))
+      .attr('stroke', 'blue')
+      .attr('stroke-width', 2)
+      .attr('fill', 'none');
+
+
+    // The initial display.
+
+
+d3.json("http://localhost:8000/dashboard/live", function(error, data) {
+  console.log(data)})
+
+
+
+    </script>
+
+<div class="jumbotron">
+
+        <ul>
+          {% for datapoint in data %}
+          <li>{{ datapoint }}</li>
+          {% endfor %}
+        </ul>
+</div>
+
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="/static/web_app/js/bootstrap.min.js"></script>
+<script src="/static/web_app/js/d3.min.js"></script>
+<script src="/static/web_app/js/dashboard.js"></script>
+<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+<!-- script src="../../assets/js/ie10-viewport-bug-workaround.js"></script -->
+</body>
+</html>
