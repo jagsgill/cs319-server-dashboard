@@ -36,6 +36,8 @@ topicCACert = 'broker/ssl/ca/cert'
 topicClientCert = 'broker/ssl/client/cert'
 topicClientKey = 'broker/ssl/client/key'
 
+sslDir = "/vagrant/synced_data/cs319-server-webApp/utils"
+
 caCert = "ca.crt"
 clientCert = "client.crt"
 clientKey = "client.key"
@@ -88,7 +90,7 @@ def message_for_ssl_setup(client, userdata, msg):
 
 
 def write_file(name, content):
-    f = open(name, 'w')
+    f = open(sslDir+"/"+name, 'w')
     for line in content:
         f.write(line)
     f.close()
