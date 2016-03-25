@@ -1,8 +1,13 @@
-
 # -*- coding: utf-8 -*-
+
+# SSL references:
+# http://rockingdlabs.dunmire.org/exercises-experiments/ssl-client-certs-to-secure-mqtt
+# https://jamielinux.com/docs/openssl-certificate-authority/sign-server-and-client-certificates.html
+
+import paho.mqtt.client as mqtt
+import ssl
 import sys
 import os
-import paho.mqtt.client as mqtt
 
 # add paths so we can import some modules from our project and set the settings environment variable
 sys.path.append('/vagrant/synced_data/cs319-server-webApp/cs319')
@@ -11,33 +16,146 @@ from django.conf import settings
 sys.path.append("/vagrant/synced_data/cs319-server-webApp")
 from web_app.models import DataPoint
 
-# ------------------------------------------------------------------------------
+#----------- User Variables -----------#
 
-# The callback for when the client receives a CONNACK response from the server.
+
+ENCRYPT = False
+
+brokerIP = '104.154.104.8'
+portEncrypted = 8883
+portUnencrypted = 1883
+timeout = 60
+
+username = "defaultserver"
+password = "vandricoserver"
+
+clientId = "test_broker_manager"
+sensorsTopic = "client/#" # server subscribes to everything under
+
+topicCACert = 'broker/ssl/ca/cert'
+topicClientCert = 'broker/ssl/client/cert'
+topicClientKey = 'broker/ssl/client/key'
+
+caCert = "ca.crt"
+clientCert = "client.crt"
+clientKey = "client.key"
+sslFiles = [caCert, clientCert, clientKey]
+
+tags = ['accel', 'gps', 'combined', 'batteryanduploadrate']
+
+
+#----------- Encrypted connection set-up -----------#
+
+
+# Get the Certificate Authority certificate from broker
+# available with unsecured connection since it's a public cert.
+
+def connect_for_ssl_setup(client, userdata, rc):
+    print(" *** Starting SSL setup *** ")
+    print 'Connected with result code ', str(rc)
+    client.subscribe(topicCACert)
+    client.subscribe(topicClientCert)
+    client.subscribe(topicClientKey)
+    print(" Subscribed to all SSL topics ")
+    return
+
+
+def message_for_ssl_setup(client, userdata, msg):
+    print(" Received SSL setup file ")
+    global sslFiles
+    lastFile = False
+
+    # if we have all the files, stop the ssl-setup client
+    if len(sslFiles) == 1:
+        lastFile = True
+
+    name = {
+        topicCACert:     caCert,
+        topicClientCert: clientCert,
+        topicClientKey:  clientKey
+    }.get(msg.topic)
+
+    sslFiles.remove(name)
+
+    write_file(name, msg.payload)
+    print(" Wrote file: %s " % name)
+
+    if lastFile:
+        print(" *** Finished SSL Setup *** ")
+        client.disconnect()
+
+    return
+
+
+def write_file(name, content):
+    f = open(name, 'w')
+    for line in content:
+        f.write(line)
+    f.close()
+    return
+
+
+sslSetupClient = mqtt.Client()
+sslSetupClient.on_connect = connect_for_ssl_setup
+sslSetupClient.on_message = message_for_ssl_setup
+
+sslSetupClient.username_pw_set(username, password)
+sslSetupClient.connect(brokerIP, portUnencrypted, timeout)
+
+
+#----------- Setup subscriber -----------#
+
 # Subscribing in on_connect() means that if we lose the connection and
 # reconnect then subscriptions will be renewed.
 def on_connect(client, userdata, rc):
-    print ('Connected with result code ', str(rc))
-    client.subscribe('hello/world') # TODO : use topics devices publish to
+    print(" *** Connected to broker: result code %s ***  " % str(rc))
+    client.subscribe(sensorsTopic)
     return
+
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print ('Topic: ', msg.topic, '\nMessage: ', str(msg.payload))
+    print ('Topic: ', msg.topic, ' Message: ', str(msg.payload))
 
-    messages = [x.strip() for x in str(msg.payload).split('$')]
-    print("%%%%%" + str(messages))
-    messages = messages[:-1]
+    # watches will send data to topics under sensors/<client id>
+    # e.g. watch with id 999 sends gps data to sensors/999/gps
+    # and we want to find the ending "tag" e.g. gps
 
-    for msg in messages:
-        arr = [x.strip() for x in msg.split(',')]
-        print(arr)
+    tag = ''
+    for t in tags:  # tags is a constant defined in User Variables section
+        if msg.topic.endswith(t):
+            tag = t
+            break
+
+    # if tag is still empty, we cannot handle the msg type so warn and skip it
+    if not tag:
+        print("**** WARNING: Unhandled msg topic %s" % msg.topic)
+        return
+
+    handler = {
+        # tag at end of topic : function to handle this type of msg
+        "combined" : combined_data_handler
+    }.get(tag)
+
+    # call the correct handler for the msg type
+    handler(msg.payload)
+
+    return
+
+#----------- Message Handlers -----------#
+
+
+def combined_data_handler(content):
+
+    messages = [x.strip() for x in str(content.payload).split('$')]
+    messages = messages[:-1] # remove extra empty string at end
+
+    for content in messages:
+        arr = [x.strip() for x in content.split(',')]
+
         devId = str(arr[0])
         accelTime = str(arr[1])
         x = float(arr[2])
-        print(str(msg[2]))
-        print("***********" + str(arr[3]))
-        print(str(arr[4]))
         y = float(arr[3])
         z = float(arr[4])
         gpsTime = int(arr[5])
@@ -56,34 +174,35 @@ def on_message(client, userdata, msg):
         )
 
         datapoint.save()
-
     return
 
-# MQTT connection
+
+
+
+
+
+#----------- Start subscriber -----------#
+
+
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
-# ----------------------------------------------------
-# Choose same broker as devices
+# Setup then connect to Google Cloud broker:
+if ENCRYPT:
+    # run this setup client until all setup files are received
+    sslSetupClient.loop_forever()
+    print(" Attempting encrypted connection to broker")
+    client.username_pw_set(username, password)
+    client.tls_set(caCert, clientCert, clientKey, ssl.CERT_REQUIRED)
+    client.connect(brokerIP, portEncrypted, timeout)
+else:
+    print(" Attempting unencrypted connection to broker ")
+    client.username_pw_set(username, password)
+    client.connect(brokerIP, portUnencrypted, timeout)
 
-# Heroku broker:
-#client.username_pw_set('ehcxlgcl', 'AQsUmTw6wYee')
-#client.connect('m10.cloudmqtt.com', 10975, 60)
 
-# Google Cloud broker:
-client.connect('130.211.153.252', 1883, 60) # unencrypted
-# client.connect('130.211.153.252', 8883, 60) # encrypted
+client.loop_forever() # run forever
 
-# Other public testing brokers:
-#client.connect('test.mosquitto.org', 1883, 60)
-#client.connect('mq.thingmq.com', 1883, 60)
-#client.connect('broker.mqttdashboard.com', 1883, 60)
 
-# ----------------------------------------------------
 
-# Blocking call that processes network traffic, dispatches callbacks and
-# handles reconnecting.
-# Other loop*() functions are available that give a threaded interface and a
-# manual interface.
-client.loop_forever()
