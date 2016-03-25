@@ -16,10 +16,10 @@ from django.conf import settings
 sys.path.append("/vagrant/synced_data/cs319-server-webApp")
 from web_app.models import DataPoint
 
-#----------- User Variables -----------#
+# ----------- User Variables ----------- #
 
 
-ENCRYPT = False
+# ENCRYPT = None  # assigned True/False from commandline arg
 
 brokerIP = '104.154.104.8'
 portEncrypted = 8883
@@ -30,7 +30,7 @@ username = "defaultserver"
 password = "vandricoserver"
 
 clientId = "test_broker_manager"
-sensorsTopic = "client/#" # server subscribes to everything under
+sensorsTopic = "client/#"  # server subscribes to everything under
 
 topicCACert = 'broker/ssl/ca/cert'
 topicClientCert = 'broker/ssl/client/cert'
@@ -44,7 +44,7 @@ sslFiles = [caCert, clientCert, clientKey]
 tags = ['accel', 'gps', 'combined', 'batteryanduploadrate']
 
 
-#----------- Encrypted connection set-up -----------#
+# ----------- Encrypted connection set-up ----------- #
 
 
 # Get the Certificate Authority certificate from broker
@@ -52,7 +52,7 @@ tags = ['accel', 'gps', 'combined', 'batteryanduploadrate']
 
 def connect_for_ssl_setup(client, userdata, rc):
     print(" *** Starting SSL setup *** ")
-    print 'Connected with result code ', str(rc)
+    print(" Connected with result code %s " % str(rc))
     client.subscribe(topicCACert)
     client.subscribe(topicClientCert)
     client.subscribe(topicClientKey)
@@ -81,7 +81,7 @@ def message_for_ssl_setup(client, userdata, msg):
     print(" Wrote file: %s " % name)
 
     if lastFile:
-        print(" *** Finished SSL Setup *** ")
+        print(" *** Finished SSL Setup *** \n")
         client.disconnect()
 
     return
@@ -99,16 +99,13 @@ sslSetupClient = mqtt.Client()
 sslSetupClient.on_connect = connect_for_ssl_setup
 sslSetupClient.on_message = message_for_ssl_setup
 
-sslSetupClient.username_pw_set(username, password)
-sslSetupClient.connect(brokerIP, portUnencrypted, timeout)
 
-
-#----------- Setup subscriber -----------#
+# ----------- Setup subscriber ----------- #
 
 # Subscribing in on_connect() means that if we lose the connection and
 # reconnect then subscriptions will be renewed.
 def on_connect(client, userdata, rc):
-    print(" *** Connected to broker: result code %s ***  " % str(rc))
+    print(" *** Connected to broker: result code %s *** \n" % str(rc))
     client.subscribe(sensorsTopic)
     return
 
@@ -142,13 +139,13 @@ def on_message(client, userdata, msg):
 
     return
 
-#----------- Message Handlers -----------#
+# ----------- Message Handlers ----------- #
 
 
 def combined_data_handler(content):
 
     messages = [x.strip() for x in str(content.payload).split('$')]
-    messages = messages[:-1] # remove extra empty string at end
+    messages = messages[:-1]  # remove extra empty string at end
 
     for content in messages:
         arr = [x.strip() for x in content.split(',')]
@@ -163,14 +160,14 @@ def combined_data_handler(content):
         long = float(arr[7])
 
         datapoint = DataPoint(
-        deviceId = devId,
-        accelTime = accelTime,
-        xAccel = x,
-        yAccel = y,
-        zAccel = z,
-        gpsTime = gpsTime,
-        lat = lat,
-        long = long
+            deviceId = devId,
+            accelTime = accelTime,
+            xAccel = x,
+            yAccel = y,
+            zAccel = z,
+            gpsTime = gpsTime,
+            lat = lat,
+            long = long
         )
 
         datapoint.save()
@@ -181,28 +178,58 @@ def combined_data_handler(content):
 
 
 
-#----------- Start subscriber -----------#
+# ----------- Start subscriber ----------- #
 
 
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
+
 # Setup then connect to Google Cloud broker:
-if ENCRYPT:
-    # run this setup client until all setup files are received
-    sslSetupClient.loop_forever()
-    print(" Attempting encrypted connection to broker")
-    client.username_pw_set(username, password)
-    client.tls_set(caCert, clientCert, clientKey, ssl.CERT_REQUIRED)
-    client.connect(brokerIP, portEncrypted, timeout)
-else:
-    print(" Attempting unencrypted connection to broker ")
-    client.username_pw_set(username, password)
-    client.connect(brokerIP, portUnencrypted, timeout)
+def start():
+    global ENCRYPT
+
+    if ENCRYPT:
+        # run the setup client until all setup files are received
+        sslSetupClient.username_pw_set(username, password)
+        sslSetupClient.connect(brokerIP, portUnencrypted, timeout)
+        sslSetupClient.loop_forever()
+
+        # run the encrypted subscriber
+        print(" Attempting encrypted connection to broker")
+        client.username_pw_set(username, password)
+        client.tls_set(caCert, clientCert, clientKey, ssl.CERT_REQUIRED)
+        client.connect(brokerIP, portEncrypted, timeout)
+        client.loop_forever() # run forever
+    else:
+        print(" Attempting unencrypted connection to broker ")
+        client.username_pw_set(username, password)
+        client.connect(brokerIP, portUnencrypted, timeout)
+        client.loop_forever() # run forever
+    return
 
 
-client.loop_forever() # run forever
+if __name__ == '__main__':
 
+    def usage():
+        print("Usage: python %s [secure | insecure]" % sys.argv[0])
+        sys.exit(64) # exit code 64: command line usage error
+        return
+
+    args = sys.argv[1:]
+    global ENCRYPT
+
+    if len(args) != 1:
+        usage()
+    elif args[0] == 'secure':
+        ENCRYPT = True
+    elif args[0] == 'insecure':
+        ENCRYPT = False
+    else:
+        usage()
+
+    print("\n *** Starting Up *** \n")
+    start()
 
 
