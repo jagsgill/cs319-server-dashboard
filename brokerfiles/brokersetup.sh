@@ -256,10 +256,17 @@ PROJECTNAME=${KV#*: }   # use Bash parameter expansion to extract the project na
 BUCKET=gs://ssl-team10-cs319
 sudo gsutil mb -p $PROJECTNAME          $BUCKET
 
-# uplod the files to the bucket
+# upload the files to the bucket
 sudo gsutil cp $PATH_CA"/"$CACERT       $BUCKET
 sudo gsutil cp $PATH_SSL"/"$CLIENTKEY   $BUCKET
 sudo gsutil cp $PATH_SSL"/"$CLIENTCERT  $BUCKET
+
+PATH_IP=$PATH_BASE
+IPFILE=broker_ips.txt
+PATH_IPFILE=$PATH_IP"/"$IPFILE
+echo "$IP" > $PATH_IPFILE
+
+sudo gsutil cp $PATH_IPFILE $BUCKET
 
 # grant read access to anyone for all files in this bucket
 sudo gsutil acl ch -u AllUsers:R $BUCKET/*
