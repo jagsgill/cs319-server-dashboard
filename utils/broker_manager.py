@@ -8,6 +8,7 @@ import paho.mqtt.client as mqtt
 import ssl
 import sys
 import os
+import urllib2
 
 # add paths so we can import some modules from our project and set the settings environment variable
 sys.path.append('/vagrant/synced_data/cs319-server-webApp/cs319')
@@ -18,10 +19,6 @@ from web_app.models import DataPoint
 
 # ----------- User Variables ----------- #
 
-
-# ENCRYPT = None  # assigned True/False from commandline arg
-
-brokerIP = '104.154.104.8'
 portEncrypted = 8883
 portUnencrypted = 1883
 timeout = 60
@@ -30,7 +27,7 @@ username = "defaultserver"
 password = "vandricoserver"
 
 clientId = "test_broker_manager"
-sensorsTopic = "client/#"  # server subscribes to everything under
+sensorsTopic = "sensors/#"  # server subscribes to everything under
 
 topicCACert = 'broker/ssl/ca/cert'
 topicClientCert = 'broker/ssl/client/cert'
@@ -38,9 +35,9 @@ topicClientKey = 'broker/ssl/client/key'
 
 sslDir = "/vagrant/synced_data/cs319-server-webApp/utils"
 
-caCert = "ca.crt"
-clientCert = "client.crt"
-clientKey = "client.key"
+caCert = sslDir+"/ca.crt"
+clientCert = sslDir+"/client.crt"
+clientKey = sslDir+"/client.key"
 sslFiles = [caCert, clientCert, clientKey]
 
 tags = ['accel', 'gps', 'combined', 'batteryanduploadrate']
@@ -71,16 +68,16 @@ def message_for_ssl_setup(client, userdata, msg):
     if len(sslFiles) == 1:
         lastFile = True
 
-    name = {
+    path = {
         topicCACert:     caCert,
         topicClientCert: clientCert,
         topicClientKey:  clientKey
     }.get(msg.topic)
 
-    sslFiles.remove(name)
+    sslFiles.remove(path)
 
-    write_file(name, msg.payload)
-    print(" Wrote file: %s " % name)
+    write_file(path, msg.payload)
+    print(" Wrote file: %s " % path)
 
     if lastFile:
         print(" *** Finished SSL Setup *** \n")
@@ -89,8 +86,8 @@ def message_for_ssl_setup(client, userdata, msg):
     return
 
 
-def write_file(name, content):
-    f = open(sslDir+"/"+name, 'w')
+def write_file(path, content):
+    f = open(path, 'w')
     for line in content:
         f.write(line)
     f.close()
@@ -128,12 +125,15 @@ def on_message(client, userdata, msg):
 
     # if tag is still empty, we cannot handle the msg type so warn and skip it
     if not tag:
-        print("**** WARNING: Unhandled msg topic %s" % msg.topic)
+        print(" **** WARNING: Unhandled Message Format **** ")
+        print("       Topic: %s " % msg.topic)
+        print("       Message: %s " % msg.payload)
+        print("       Allowed types: %s " % tags)
         return
 
     handler = {
         # tag at end of topic : function to handle this type of msg
-        "combined" : combined_data_handler
+        "combined": combined_data_handler
     }.get(tag)
 
     # call the correct handler for the msg type
@@ -192,6 +192,8 @@ client.on_message = on_message
 def start():
     global ENCRYPT
 
+    set_broker_ip()
+
     if ENCRYPT:
         # run the setup client until all setup files are received
         sslSetupClient.username_pw_set(username, password)
@@ -209,6 +211,17 @@ def start():
         client.username_pw_set(username, password)
         client.connect(brokerIP, portUnencrypted, timeout)
         client.loop_forever() # run forever
+    return
+
+
+def set_broker_ip():
+    global brokerIP
+
+    print(" Getting broker IP ... ")
+    brokerIPlocation='https://storage.googleapis.com/ssl-team10-cs319/broker_ips.txt'
+    IPdoc = urllib2.urlopen(brokerIPlocation)
+    brokerIP = IPdoc.read().strip()
+    print(" Found broker: %s" % brokerIP)
     return
 
 
