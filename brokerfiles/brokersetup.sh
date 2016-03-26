@@ -245,3 +245,22 @@ sudo mosquitto -c $PATH_CONF -d
 mosquitto_pub --retain -h $IP -p 1883 -t "broker/ssl/ca/cert" -u "broker" -P "vandricobroker" -f $PATH_CA"/"$CACERT
 mosquitto_pub --retain -h $IP -p 1883 -t "broker/ssl/client/key" -u "broker" -P "vandricobroker" -f $PATH_SSL"/"$CLIENTKEY
 mosquitto_pub --retain -h $IP -p 1883 -t "broker/ssl/client/cert" -u "broker" -P "vandricobroker" -f $PATH_SSL"/"$CLIENTCERT
+
+
+# Also serve these files using public HTTP
+
+KV=$(gcloud compute project-info describe | grep name) # gives 'name: <project name>'
+PROJECTNAME=${KV#*: }   # use Bash parameter expansion to extract the project name
+
+# create a Google Cloud Storage bucket with this unique name (if it doesn't already exist
+BUCKET=gs://ssl-team10-cs319
+sudo gsutil mb -p $PROJECTNAME          $BUCKET
+
+# uplod the files to the bucket
+sudo gsutil cp $PATH_CA"/"$CACERT       $BUCKET
+sudo gsutil cp $PATH_SSL"/"$CLIENTKEY   $BUCKET
+sudo gsutil cp $PATH_SSL"/"$CLIENTCERT  $BUCKET
+
+# grant read access to anyone for all files in this bucket
+sudo gsutil acl ch -u AllUsers:R $BUCKET/*
+
