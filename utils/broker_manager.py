@@ -113,7 +113,7 @@ def on_connect(client, userdata, rc):
 def on_message(client, userdata, msg):
     print ('Topic: ', msg.topic, ' Message: ', str(msg.payload))
 
-    # watches will send data to topics under sensors/<client id>
+    # watches will send data to topics under   sensors/<client id>
     # e.g. watch with id 999 sends gps data to sensors/999/gps
     # and we want to find the ending "tag" e.g. gps
 
@@ -146,7 +146,7 @@ def on_message(client, userdata, msg):
 
 def combined_data_handler(content):
 
-    messages = [x.strip() for x in str(content.payload).split('$')]
+    messages = [x.strip() for x in str(content).split('$')]
     messages = messages[:-1]  # remove extra empty string at end
 
     for content in messages:
