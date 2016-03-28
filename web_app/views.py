@@ -12,10 +12,7 @@ from models import DataPoint
 def log_in(request):
     return render(request, 'signIn.html')
 
-
 # TODO: make users
-
-
 
 # TODO: date  range //PO
 def get_device_by_time_range(request, start_time, end_time):
@@ -23,7 +20,7 @@ def get_device_by_time_range(request, start_time, end_time):
     return render(request, 'dashboard.html', {'device_list': device_list}) # may need to be changed
 
 # TODO: make query only get unique IDs //PO
-# dashboard/device listing page
+# dashboard (device listing) page
 def get_device_ids(request):
     device_list = DataPoint.objects.values('device_id').order_by('device_id')
     distinct_device_list = []
@@ -40,15 +37,12 @@ def analyze_device(request, watch_id):
     # return HttpResponse("Device ID %s " % watch_id)
 
 
-# TODO: make API request dynamic here or in the JS
-def live(request):
-    xAccel = DataPoint.objects.values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel')
-    str = json.dumps(list(xAccel), cls=DjangoJSONEncoder)
-    print(str)
-    return HttpResponse(str, content_type='application/json; charset=utf8')
-    # data = DataPoint.objects.filter(device_id = desired_device);
-    # parsed = parseDemoData(data)
-    # return render(request, 'demo.html', {'data': data})
+# dynamic API for D3 graph
+def live(request, watch_id):
+    data = DataPoint.objects.filter(device_id=watch_id).values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel')
+    json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
+    return HttpResponse(json_str, content_type='application/json; charset=utf8')
+
 
 # TODO: can we delete this method?
 # demo page

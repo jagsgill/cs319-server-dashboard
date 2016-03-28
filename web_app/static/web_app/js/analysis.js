@@ -99,8 +99,14 @@ $(document).ready(function () {
     }
 
   function getData() {
-  console.log("getting data");
-    d3.json("http://localhost:8000/dashboard/live", function(error, json){
+    console.log("getting data");
+    //  Get URL, parse to get device ID
+    var url = window.location.href;
+    var regex =/[^/]*$/g
+    url = url.match(regex)
+    console.log("url: http://localhost:8000/dashboard/live/" + url);
+
+    d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
     var newData=[];
     json.forEach(function(d){
     newData.push({"deviceId":d.deviceId+"x","accelTime":d.accelTime,"accel":d.xAccel});
