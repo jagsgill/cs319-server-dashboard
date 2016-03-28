@@ -1,40 +1,20 @@
 from __future__ import unicode_literals
 
 from django.db import models
-from djangotoolbox.fields import EmbeddedModelField
-from djangotoolbox.fields import ListField
-
-# from django_mongodb_engine import *
 
 # Create your models here.
 
-class AccelerometerPayload(models.Model):
-    x = models.FloatField(null=False)
-    y = models.FloatField(null=False)
-    z = models.FloatField(null=False)
-
-class Location(models.Model):
-    lat = models.FloatField(null=True)
-    lon = models.FloatField(null=True)
-
-class WatchEvent(models.Model):
-    timeStamp = models.DateTimeField()
-    accelerometer_payload = ListField(EmbeddedModelField('AccelerometerPayload'))
-    location = ListField(EmbeddedModelField('Location'))
-
-class Device(models.Model):
-    device_id = models.DecimalField(null=False)
-    watch_events = ListField(EmbeddedModelField('WatchEvent'))
-
 class DataPoint(models.Model):
-    deviceId = models.CharField()
-
+    device_id = models.CharField()
     accelTime = models.IntegerField()
     xAccel = models.FloatField()
     yAccel = models.FloatField()
     zAccel = models.FloatField()
 
-    gpsTime = models.IntegerField()
+    battery_level = models.FloatField(null=True)
+    upload_rate = models.FloatField(null=True)
+
+    gpsTime = models.IntegerField(null=True)
     lat = models.FloatField(null=True)
     long = models.FloatField(null=True)
 

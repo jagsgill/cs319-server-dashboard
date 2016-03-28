@@ -67,11 +67,12 @@
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
         <h1>Analysis & Reporting Dashboard</h1>
-        <p>Device ID: XX</p>
+        <p>Device ID: {{ data.device_id }}</p>
         <p>Start Date: <input type="text" id="startDate"> End Date: <input type="text" id="endDate"></p>
         <p>Sensor Type 
           <select class="form-control">
             <option>Accelerometer</option>
+            <option>Battery Life</option>
           </select> 
         </p>
         <p>Analysis Type
