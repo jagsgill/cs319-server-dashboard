@@ -10,6 +10,7 @@ urlpatterns = [
 
     # url(r'^demo$', views.demo, name='demo'),
 
-    url(r'^live$', views.live, name='live'),
+    url(r'^live/(?P<watch_id>\d+)$', views.live, name='live'),
+
     static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     ]
