@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
+    #url(r'^dashboard/login/$', ''),#PO
     url(r'^dashboard/', include('web_app.urls')),
     url(r'^admin/', admin.site.urls),
     static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

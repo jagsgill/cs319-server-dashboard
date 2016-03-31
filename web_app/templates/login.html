@@ -1,0 +1,13 @@
+{% block content %}
+    {% if form.errors %}
+        <p class="error">Not a valid user name or password</p>
+    {% endif %}
+    <form action="/dashboard/authview" method="post">{% csrf_token %}
+        <label for="username">User name:</label>
+        <input type="text" name="username" value="" id="username">
+        <label for="password">Password:</label>
+        <input type="password" name="password" value="" id="password">
+
+        <input type="submit" value="login" />
+    </form>
+{% endblock %}
