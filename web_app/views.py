@@ -14,12 +14,13 @@ def log_in(request):
 
 # TODO: make users
 
+
 # TODO: date  range //PO
 def get_device_by_time_range(request, start_time, end_time):
     device_list = DataPoint.objects.filter(accelTime__gte=start_time).filter(accelTime__lte=end_time)
     return render(request, 'dashboard.html', {'device_list': device_list}) # may need to be changed
 
-# TODO: make query only get unique IDs //PO
+
 # dashboard (device listing) page
 def get_device_ids(request):
     device_list = DataPoint.objects.values('device_id').order_by('device_id')

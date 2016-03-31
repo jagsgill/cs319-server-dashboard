@@ -37,11 +37,11 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">IoT Smartwatches</a>
+          <a class="navbar-brand" href="http://localhost:8000/dashboard/">Big Brother</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
+            <li class="active"><a href="http://localhost:8000/dashboard/">Device Listing</a></li>
           </ul>
 
           <ul class="nav navbar-nav navbar-right">
@@ -56,30 +56,78 @@
       <!-- Main component for a primary marketing message or call to action -->
     <section href="#home">
       <div class="jumbotron">
-        <h1>Analysis & Reporting Dashboard</h1>
+        <h2>Analysis Dashboard</h2>
         <br>
-        <p>IoT Smartwatches</p>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Total Number of Devices</h3>
+                  </div>
+                  <div class="panel-body">
+                    Data
+                  </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Devices Currently Connected</h3>
+                  </div>
+                  <div class="panel-body">
+                    Data
+                  </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Average Connection Length (minutes)</h3>
+                  </div>
+                  <div class="panel-body">
+                    Data
+                  </div>
+                </div>
+            </div>
+        </div>
 
-        <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>Device ID</th>
-                <th>Number of Sessions</th>
-                <th>Currently Connected to Sever</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for device in device_list %}
-              <tr>
-                <td>{{ device.device_id}}</td>
-                  <td></td>
-               <td><p>&#10004; &#10007;</p></td>
-              </tr>
-            {% endfor %}
-            </tbody>
 
-      </table>
-
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Device Listing</h3>
+          </div>
+          <div class="panel-body">
+            <p> Filter Listing </p>
+            <div class="row">
+                <div class="col-md-6">
+                    <form>
+                      <input type="radio" name="connected" value="currently_connected"> Device Currently Connected
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    (calendar-icon) Last Connection After
+                </div>
+            </div>
+          </div>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Device ID</th>
+                    <th>Number of Sessions</th>
+                    <th>Currently Connected to Sever</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for device in device_list %}
+                  <tr>
+                    <td><a href="http://localhost:8000/dashboard/{{ device.device_id}}">{{ device.device_id}}</a></td>
+                    <td></td>
+                    <td><p>&#10004; &#10007;</p></td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
       </div>
     </section>
