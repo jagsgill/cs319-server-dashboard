@@ -11,9 +11,27 @@ from django.contrib import auth
 from django.core.context_processors import csrf
 
 from models import DataPoint
+
+#  make users
+#User.objects.create_user(username='petero',
+#                                 email='peterostrovsky@ymail.com',
+#                                 password='peter')
+#User.objects.create_user(username='michaelk',
+#                                 email='mike.kwan@hotmail.com',
+#                                 password='michael')
+#User.objects.create_user(username='eliasf',
+#                                 email='ejfriedman7@gmail.com',
+#                                 password='elias')
+#User.objects.create_user(username='weijunq',
+#                                 email='weijun.q@gmail.com',
+#                                 password='weijun')
+#User.objects.create_user(username='rosellen',
+#                                 email='ri_ting@hotmail.com',
+#                                 password='roselle')
+#User.objects.create_user(username='jayg',
+#                                 email='jgill.tftf@gmail.com',
+#                                 password='jay')
 # Create your views here.
-
-
 # TODO: fix routing to make the login page the homepage
 # serve login page
 def login(request):
@@ -41,8 +59,6 @@ def logout(request):
     auth.logout(request)
     return render_to_response('logout.html')
 
-
-# TODO: make users
 
 
 # date  range //PO
