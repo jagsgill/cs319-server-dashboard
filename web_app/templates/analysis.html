@@ -57,27 +57,68 @@
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
         <h1>Analysis & Reporting Dashboard</h1>
-             {% for data in device_data %}
+             {% for data in device_data|slice:":1" %}
                 <p>Device ID: {{ data.device_id }}</p>
              {% endfor %}
-        <p>Start Date: <input type="text" id="startDate"> End Date: <input type="text" id="endDate"></p>
-        <p>Sensor Type 
-          <select class="form-control">
-            <option>Accelerometer</option>
-            <option>Battery Life</option>
-          </select> 
-        </p>
-        <p>Analysis Type
-          <select class="form-control">
-            <option>Line Chart</option>
-          </select> 
-        </p>
-        <p>
-          <a id="generateGraph" class="btn btn-lg btn-primary" href="#" role="button">Generate Graph &raquo;</a>
-        </p>
-        <div class="chart">
-          <svg id="lineChart" width="800" height="500"></svg>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Currently Connected</h3>
+                  </div>
+                  <div class="panel-body">
+                    Yes/No
+                  </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Devices Currently Connected</h3>
+                  </div>
+                  <div class="panel-body">
+                    Data
+                  </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="panel panel-primary">
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Average Connection Length (minutes)</h3>
+                  </div>
+                  <div class="panel-body">
+                    Data
+                  </div>
+                </div>
+            </div>
         </div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="chart">
+                </div>
+            </div>
+            <div class="col-md-4">
+            	<h3 style="font-weight: bold;">Filter Graph</h3>
+                <p>Start Date: <input type="text" id="startDate"></p> 
+                <p>End Date: <input type="text" id="endDate"></p>
+                <p>Sensor Type 
+                  <select class="form-control">
+                    <option>Accelerometer</option>
+                    <option>Battery Life</option>
+                  </select> 
+                </p>
+                <p>Analysis Type
+                  <select class="form-control">
+                    <option>Line Chart</option>
+                  </select> 
+                </p>
+                <p>
+                  <a id="generateGraph" class="btn btn-lg btn-primary" href="#" role="button">Filter Graph &raquo;</a>
+                </p>
+            </div>
+        </div>
+        
       </div>
 
     </div> <!-- /container -->

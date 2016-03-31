@@ -2,7 +2,8 @@ $(document).ready(function () {
 
   $("#startDate").datepicker();
   $("#endDate").datepicker();
-
+  $(".chart").append("<svg id='lineChart' width='1500' height='550'></svg>")
+  
   var interval;
   $('#generateGraph').on('click', function (ev) {
     getData();
@@ -16,14 +17,11 @@ $(document).ready(function () {
     function updateGraph(data) {
     console.log("updating graph");
     $('#lineChart').empty();
-    //var data = globaldata;
-    console.log("i got here");
     console.log(data);
     var dataGroup = d3.nest().key(function(d) {return d.deviceId;}).entries(data);
-    console.log("can i get here");
     var color = d3.scale.category10();
     var vis = d3.select("#lineChart"),
-    WIDTH = 800,
+    WIDTH = $(".chart").width(),
     HEIGHT = 500,
     MARGINS = {
         top: 50,
@@ -109,9 +107,9 @@ $(document).ready(function () {
     d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
     var newData=[];
     json.forEach(function(d){
-    newData.push({"deviceId":d.deviceId+"x","accelTime":d.accelTime,"accel":d.xAccel});
-    newData.push({"deviceId":d.deviceId+"y","accelTime":d.accelTime,"accel":d.yAccel});
-    newData.push({"deviceId":d.deviceId+"z","accelTime":d.accelTime,"accel":d.zAccel});
+    newData.push({"deviceId":d.device_id+"x","accelTime":d.accelTime,"accel":d.xAccel});
+    newData.push({"deviceId":d.device_id+"y","accelTime":d.accelTime,"accel":d.yAccel});
+    newData.push({"deviceId":d.device_id+"z","accelTime":d.accelTime,"accel":d.zAccel});
     });
     updateGraph(newData);
     console.log(newData);});
