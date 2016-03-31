@@ -44,10 +44,14 @@ def logout(request):
 
 # TODO: make users
 
+
 # date  range //PO
+
+# TODO: date  range //PO
 def get_device_by_time_range(request, start_time, end_time):
     device_list = DataPoint.objects.filter(accelTime__gte=start_time).filter(accelTime__lte=end_time)
     return render(request, 'dashboard.html', {'device_list': device_list}) # may need to be changed
+
 
 # make query only get unique IDs //PO
 # dashboard (device listing) page
