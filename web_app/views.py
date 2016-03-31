@@ -89,7 +89,7 @@ def analyze_device(request, watch_id):
 
 # dynamic API for D3 graph
 def live(request, watch_id):
-    data = DataPoint.objects.filter(device_id=watch_id).values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel')
+    data = DataPoint.objects.filter(device_id=watch_id).values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel', 'battery_level')
     json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
     return HttpResponse(json_str, content_type='application/json; charset=utf8')
 
