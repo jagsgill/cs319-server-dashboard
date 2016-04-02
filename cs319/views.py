@@ -11,7 +11,7 @@ from django.contrib import auth
 from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required
 
-from models import DataPoint
+from web_app.models import DataPoint
 
 def login(request):
     c = {}
@@ -24,7 +24,13 @@ def authview(request):
     user = auth.authenticate(username=username,password=password)
     if user is not None:
         auth.login(request,user)
-        return render_to_response('dashboard.html')
+        device_list = DataPoint.objects.values('device_id').order_by('device_id')
+        distinct_device_list = []
+        for d in device_list:
+            if d not in distinct_device_list:
+                distinct_device_list.append(d)
+        return render(request, 'dashboard.html', {'device_list': distinct_device_list})
+        #return render_to_response('dashboard.html')
     else:
         return HttpResponseRedirect('/invalidlogin')
 
