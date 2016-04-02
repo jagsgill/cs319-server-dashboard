@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate
 from models import DataPoint
 
 #  make users
-#User.objects.create_user(username='petero',
+# User.objects.create_user(username='petero',
 #                                 email='peterostrovsky@ymail.com',
 #                                 password='peter')
 
@@ -29,7 +29,6 @@ from models import DataPoint
 #                                 password='jay')
 
 
-# TODO: fix routing to make the login page the homepage
 # serve login page
 def login(request):
     c = {}
@@ -85,7 +84,6 @@ def get_device_ids(request):
 def analyze_device(request, watch_id):
     device_data = DataPoint.objects.filter(device_id=watch_id)
     return render(request, 'analysis.html', {'device_data': device_data})
-    # return HttpResponse("Device ID %s " % watch_id)
 
 
 # dynamic API for D3 graph
