@@ -25,7 +25,7 @@ from . import views
 urlpatterns = [
 
     url(r'^$', views.login, name='login'), #PO
-    url(r'^authview$', views.authview, name='authview'), #PO
+    url(r'^dashboard$', views.authview, name='dashboard'), #PO
     url(r'^logout$', views.logout, name='logout'), #PO
     url(r'^loggedin$', views.loggedin, name='loggedin'), #PO
     url(r'^invalidlogin$', views.invalidlogin, name='invalidlogin'), #PO

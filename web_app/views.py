@@ -4,12 +4,6 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-#PO
-#from django.shortcuts import render_to_response
-#from django.http import HttpResponseRedirect
-#from django.contrib import auth
-#from django.core.context_processors import csrf
-from django.contrib.auth.decorators import login_required
 
 from models import DataPoint
 
@@ -17,54 +11,12 @@ from models import DataPoint
 #User.objects.create_user(username='petero',
 #                                 email='peterostrovsky@ymail.com',
 #                                 password='peter')
-#User.objects.create_user(username='michaelk',
-#                                 email='mike.kwan@hotmail.com',
-#                                 password='michael')
-#User.objects.create_user(username='eliasf',
-#                                 email='ejfriedman7@gmail.com',
-#                                 password='elias')
-#User.objects.create_user(username='weijunq',
-#                                 email='weijun.q@gmail.com',
-#                                 password='weijun')
-#User.objects.create_user(username='rosellen',
-#                                 email='ri_ting@hotmail.com',
-#                                 password='roselle')
-#User.objects.create_user(username='jayg',
-#                                 email='jgill.tftf@gmail.com',
-#                                 password='jay')
+
 # Create your views here.
 # TODO: fix routing to make the login page the homepage
-# serve login page
-# def login(request):
-#     c = {}
-#     c.update(csrf(request))
-#     return render_to_response('loginOLD.html', c)
-#
-# def authview(request):
-#     username = request.POST.get('username','')
-#     password = request.POST.get('password','')
-#     user = auth.authenticate(username=username,password=password)
-#     if user is not None:
-#         auth.login(request,user)
-#         return HttpResponseRedirect('/dashboard/loggedin')
-#     else:
-#         return HttpResponseRedirect('/dashboard/invalidlogin')
-#
-# def loggedin(request):
-#     return render_to_response('loggedinOLD.html', {'full_name': request.user.username})
-#
-# def invalidlogin(request):
-#     return render_to_response('invalidloginOLD.html')
-#
-# def logout(request):
-#     auth.logout(request)
-#     return render_to_response('logoutOLD.html')
-
 
 
 # date  range //PO
-
-# TODO: date  range //PO
 def get_device_by_time_range(request, start_time, end_time):
     device_list = DataPoint.objects.filter(accelTime__gte=start_time).filter(accelTime__lte=end_time)
     return render(request, 'dashboard.html', {'device_list': device_list}) # may need to be changed
