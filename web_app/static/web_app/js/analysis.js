@@ -5,20 +5,34 @@ $(document).ready(function () {
   $(".chart").append("<svg id='lineChart' width='1500' height='550'></svg>")
   
   var interval;
+  var sensorType;
   $('#generateGraph').on('click', function (ev) {
-    getData();
-    console.log("hello");
-    if(interval) {
-        clearInterval(interval);
+    if($("#sensorType").val() == "Accelerometer") {
+        sensorType = 1;
+        getDataAccel();
+    } else if ($("#sensorType").val() == "Battery Life"){
+        sensorType = 2;
+        getDataBattery();
+    } else {
+        getDataAccel();
     }
-    interval=setInterval(function() {update()}, 1000);
+    if($("#liveUpdate").is(':checked')) {
+        if(interval) {
+            clearInterval(interval);
+        }
+        interval=setInterval(function() {update()}, 1000);
+    } else {
+        if(interval) {
+            clearInterval(interval);
+        }
+    }
   });
 
     function updateGraph(data) {
     console.log("updating graph");
     $('#lineChart').empty();
     console.log(data);
-    var dataGroup = d3.nest().key(function(d) {return d.deviceId;}).entries(data);
+    var dataGroup = d3.nest().key(function(d) {return d.device_id;}).entries(data);
     var color = d3.scale.category10();
     var vis = d3.select("#lineChart"),
     WIDTH = $(".chart").width(),
@@ -38,9 +52,17 @@ $(document).ready(function () {
                             return d.accelTime;
                         })]),
     yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
+    						if(sensorType==2){
+    							return 0;
+    						} else {
                             return d.accel;
+    						}
                         }), d3.max(data, function(d) {
+                        	if(sensorType==2){
+    							return 100;
+    						} else {
                             return d.accel;
+    						}
                         })]),
     xAxis = d3.svg.axis().scale(xScale),
     yAxis = d3.svg.axis().scale(yScale).orient("left");
@@ -80,7 +102,13 @@ $(document).ready(function () {
     }
 
     function update() {
-        getData();
+        if(sensorType==1){
+            getDataAccel();
+        } else if(sensorType==2) {
+            getDataBattery();
+        } else {
+            getDataAccel();
+        }
     }
 
     function toDate(unix_tm) {
@@ -96,7 +124,7 @@ $(document).ready(function () {
         return time;
     }
 
-  function getData() {
+  function getDataAccel() {
     console.log("getting data");
     //  Get URL, parse to get device ID
     var url = window.location.href;
@@ -107,9 +135,25 @@ $(document).ready(function () {
     d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
     var newData=[];
     json.forEach(function(d){
-    newData.push({"deviceId":d.device_id+"x","accelTime":d.accelTime,"accel":d.xAccel});
-    newData.push({"deviceId":d.device_id+"y","accelTime":d.accelTime,"accel":d.yAccel});
-    newData.push({"deviceId":d.device_id+"z","accelTime":d.accelTime,"accel":d.zAccel});
+    newData.push({"device_id":"X","accelTime":d.accelTime,"accel":d.xAccel});
+    newData.push({"device_id":"Y","accelTime":d.accelTime,"accel":d.yAccel});
+    newData.push({"device_id":"Z","accelTime":d.accelTime,"accel":d.zAccel});
+    });
+    updateGraph(newData);
+    console.log(newData);});
+  }
+  
+  function getDataBattery() {
+    console.log("getting data");
+    //  Get URL, parse to get device ID
+    var url = window.location.href;
+    var regex =/[^/]*$/g
+    url = url.match(regex)
+    console.log("url: http://localhost:8000/dashboard/live/" + url);
+    d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
+    var newData=[];
+    json.forEach(function(d){
+    newData.push({"device_id":"Battery_Life","accelTime":d.accelTime,"accel":d.battery_level*100});
     });
     updateGraph(newData);
     console.log(newData);});

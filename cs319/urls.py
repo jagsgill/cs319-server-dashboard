@@ -19,10 +19,17 @@ from django.contrib import admin
 
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
 
 
 urlpatterns = [
-    #url(r'^dashboard/login/$', ''),#PO
+
+    url(r'^$', views.login, name='login'), #PO
+    url(r'^dashboard$', views.authview, name='dashboard'), #PO
+    url(r'^logout$', views.logout, name='logout'), #PO
+    url(r'^loggedin$', views.loggedin, name='loggedin'), #PO
+    url(r'^invalidlogin$', views.invalidlogin, name='invalidlogin'), #PO
+
     url(r'^dashboard/', include('web_app.urls')),
     url(r'^admin/', admin.site.urls),
     static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
