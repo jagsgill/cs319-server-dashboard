@@ -99,11 +99,11 @@
                 </div>
             </div>
             <div class="col-md-4">
-            	<h3 style="font-weight: bold;">Filter Graph</h3>
+                <h3 style="font-weight: bold;">Filter Graph</h3>
                 <p>Start Date: <input type="text" id="startDate"></p> 
                 <p>End Date: <input type="text" id="endDate"></p>
                 <p>Sensor Type 
-                  <select class="form-control">
+                  <select id="sensorType" class="form-control">
                     <option>Accelerometer</option>
                     <option>Battery Life</option>
                   </select> 
@@ -115,6 +115,9 @@
                 </p>
                 <p>
                   <a id="generateGraph" class="btn btn-lg btn-primary" href="#" role="button">Filter Graph &raquo;</a>
+                </p>
+                <p>
+                  Live Update: <input id="liveUpdate" type="checkbox">
                 </p>
             </div>
         </div>
