@@ -31,13 +31,15 @@ from models import DataPoint
 #User.objects.create_user(username='jayg',
 #                                 email='jgill.tftf@gmail.com',
 #                                 password='jay')
-# Create your views here.
+
+
 # TODO: fix routing to make the login page the homepage
 # serve login page
 def login(request):
     c = {}
     c.update(csrf(request))
     return render_to_response('login.html', c)
+
 
 def authview(request):
     username = request.POST.get('username','')
@@ -49,11 +51,14 @@ def authview(request):
     else:
         return HttpResponseRedirect('/dashboard/invalidlogin')
 
+
 def loggedin(request):
     return render_to_response('loggedin.html', {'full_name': request.user.username})
 
+
 def invalidlogin(request):
     return render_to_response('invalidlogin.html')
+
 
 def logout(request):
     auth.logout(request)
@@ -74,10 +79,13 @@ def get_device_by_time_range(request, start_time, end_time):
 def get_device_ids(request):
     device_list = DataPoint.objects.values('device_id').order_by('device_id')
     distinct_device_list = []
+    distinct_device_count = 0
     for d in device_list:
         if d not in distinct_device_list:
             distinct_device_list.append(d)
-    return render(request, 'dashboard.html', {'device_list': distinct_device_list})
+            distinct_device_count += 1
+    return render(request, 'dashboard.html', {'device_list': distinct_device_list,
+                                              'distinct_device_count': distinct_device_count})
 
 
 # dynamic analysis page for a device

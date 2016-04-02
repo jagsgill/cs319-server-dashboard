@@ -4,6 +4,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class DataPoint(models.Model):
     device_id = models.CharField()
     accelTime = models.IntegerField()
@@ -18,3 +19,8 @@ class DataPoint(models.Model):
     lat = models.FloatField(null=True)
     long = models.FloatField(null=True)
 
+class ConnectedCount(models.Model):
+    count = models.IntegerField()
+
+class ConnectedDeviceList(models.Model):
+    device_list = models.CharField()
