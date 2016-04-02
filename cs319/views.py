@@ -36,3 +36,5 @@ def invalidlogin(request):
 def logout(request):
     auth.logout(request)
     return render_to_response('logout.html')
+
+

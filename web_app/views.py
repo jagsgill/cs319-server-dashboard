@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate
 #from django.http import HttpResponseRedirect
 #from django.contrib import auth
 #from django.core.context_processors import csrf
+from django.contrib.auth.decorators import login_required
 
 from models import DataPoint
 
