@@ -2,31 +2,45 @@ $(document).ready(function () {
 
   $("#startDate").datepicker();
   $("#endDate").datepicker();
-  $(".chart").append("<svg id='lineChart' width='1500' height='550'></svg>")
+  $(".chart").append("<svg id='lineChart' width='1500' height='550'></svg>");
+  $("#liveUpdate").prop('checked',true);
+  generateGraph();
   
   var interval;
   var sensorType;
   $('#generateGraph').on('click', function (ev) {
-    if($("#sensorType").val() == "Accelerometer") {
-        sensorType = 1;
-        getDataAccel();
-    } else if ($("#sensorType").val() == "Battery Life"){
-        sensorType = 2;
-        getDataBattery();
-    } else {
-        getDataAccel();
-    }
-    if($("#liveUpdate").is(':checked')) {
-        if(interval) {
-            clearInterval(interval);
-        }
-        interval=setInterval(function() {update()}, 1000);
-    } else {
-        if(interval) {
-            clearInterval(interval);
-        }
-    }
+    generateGraph();
   });
+  
+  $('#liveUpdate').change(function() {
+	generateGraph();
+  });
+  
+  	function generateGraph() {
+  		if($("#sensorType").val() == "Accelerometer") {
+  	        sensorType = 1;
+  	        getDataAccel();
+  	    } else if ($("#sensorType").val() == "Battery Life"){
+  	        sensorType = 2;
+  	        getDataBattery();
+  	    } else {
+  	        getDataAccel();
+  	    }
+  	    if($("#liveUpdate").is(':checked')) {
+  	    	$("#sDate").hide();
+  	    	$("#eDate").hide();
+  	        if(interval) {
+  	            clearInterval(interval);
+  	        }
+  	        interval=setInterval(function() {update()}, 1000);
+  	    } else {
+  	    	$("#sDate").show();
+  	    	$("#eDate").show();
+  	        if(interval) {
+  	            clearInterval(interval);
+  	        }
+  	    }
+  	}
 
     function updateGraph(data) {
     console.log("updating graph");
