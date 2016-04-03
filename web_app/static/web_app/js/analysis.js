@@ -2,12 +2,14 @@ $(document).ready(function () {
 
   $("#startDate").datepicker();
   $("#endDate").datepicker();
-  $(".chart").append("<svg id='lineChart' width='1500' height='550'></svg>");
+  $(".chart").append("<svg id='lineChart' width="+ $(window).width()/1.5 +" height='600'></svg>");
   $("#liveUpdate").prop('checked',true);
   generateGraph();
   
   var interval;
   var sensorType;
+  var yAxVal;
+  var titleText;
   $('#generateGraph').on('click', function (ev) {
     generateGraph();
   });
@@ -18,12 +20,18 @@ $(document).ready(function () {
   
   	function generateGraph() {
   		if($("#sensorType").val() == "Accelerometer") {
+  			titleText = "Acceleration over Time";
+  			yAxVal = "Acceleration (m/s^2)";
   	        sensorType = 1;
   	        getDataAccel();
   	    } else if ($("#sensorType").val() == "Battery Life"){
+  	    	titleText = "Battery Life over Time";
+  	    	yAxVal = "Battery Level";
   	        sensorType = 2;
   	        getDataBattery();
   	    } else {
+  	    	titleText = "Acceleration over Time";
+  			yAxVal = "Acceleration (m/s^2)";
   	        getDataAccel();
   	    }
   	    if($("#liveUpdate").is(':checked')) {
@@ -90,20 +98,42 @@ $(document).ready(function () {
         return yScale(d.accel);
     })
     .interpolate("basis");
+    vis.append("text")
+//    .attr("text-anchor", "start")  
+//    .attr("transform", "translate("+ 0 +","+MARGINS.top/2+")")
+    .attr("text-anchor", "middle")
+    .attr("transform", "translate("+ 15 +","+(HEIGHT/2)+")rotate(-90)")
+    .style("font-size", "20px")
+    .text(yAxVal);
+    vis.append("text")
+    .attr("text-anchor", "end")
+    .attr("transform", "translate("+ (WIDTH) +","+(HEIGHT-MARGINS.bottom-5)+")")
+    .style("font-size", "20px")
+    .text("Time");
+    vis.append("text")
+    .attr("text-anchor", "middle")
+    .attr("transform", "translate("+ (WIDTH/2) +","+MARGINS.top+")")
+    .style("font-size", "30px")
+    .text(titleText);
+    var color;
     dataGroup.forEach(function(d,i) {
                         vis.append('svg:path')
                         .attr('d', lineGen(d.values))
                         .attr('stroke', function(){
-                        return "hsl(" + i*(360/dataGroup.length) + ",100%,50%)";
+                        	color="hsl(" + i*(360/dataGroup.length) + ",100%,50%)";
+                        	return color;
                         })
                         .attr('stroke-width', 1)
                         .attr('id', 'line_'+d.key)
                         .attr('fill', 'none')
                         .attr('opacity', 0.5);
                         vis.append("text")
+                        	.attr("text-anchor", "middle")
                             .attr("x", (lSpace/2)+i*lSpace)
                             .attr("y", HEIGHT)
-                            .style("fill", "black")
+                            .style("font-size", "25px")
+                            .style("stroke", "grey")
+                            .style("fill", color)
                             .attr("class","legend")
                             .on('click',function(){
                                 var active   = d.active ? false : true;
