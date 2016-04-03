@@ -223,6 +223,7 @@ def client_count_handler(status, id):
         # print("First run: no TotalDeviceCount and ConnectedDeviceCount objects in DB. Creating them...")
         TotalDeviceCount(count = Device.objects.count()).save()
         ConnectedDeviceCount(count = ConnectedDevice.objects.count()).save()
+        OfflineDeviceCount(count = OfflineDevice.objects.count()).save()
     except MultipleObjectsReturned:
         # print("Warning: expected 1 ConnectedDeviceCount object in DB but found multiple... updating all")
         pass
