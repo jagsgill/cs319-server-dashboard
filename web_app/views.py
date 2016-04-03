@@ -2,6 +2,10 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import json
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+from django.shortcuts import render_to_response
+from django.core.context_processors import csrf
 
 from models import DataPoint
 
@@ -14,21 +18,30 @@ def get_device_by_time_range(request, start_time, end_time):
 # make query only get unique IDs //PO
 # dashboard (device listing) page
 def get_device_ids(request):
-    device_list = DataPoint.objects.values('device_id').order_by('device_id')
-    distinct_device_list = []
-    distinct_device_count = 0
-    for d in device_list:
-        if d not in distinct_device_list:
-            distinct_device_list.append(d)
-            distinct_device_count += 1
-    return render(request, 'dashboard.html', {'device_list': distinct_device_list,
-                                              'distinct_device_count': distinct_device_count})
-
+    if request.user.is_authenticated():
+        device_list = DataPoint.objects.values('device_id').order_by('device_id')
+        distinct_device_list = []
+        distinct_device_count = 0
+        for d in device_list:
+            if d not in distinct_device_list:
+                distinct_device_list.append(d)
+                distinct_device_count += 1
+        return render(request, 'dashboard.html', {'device_list': distinct_device_list,
+                                                  'distinct_device_count': distinct_device_count})
+    else:
+        c = {}
+        c.update(csrf(request))
+        return render_to_response('logout.html', c)
 
 # dynamic analysis page for a device
 def analyze_device(request, watch_id):
-    device_data = DataPoint.objects.filter(device_id=watch_id)
-    return render(request, 'analysis.html', {'device_data': device_data})
+    if request.user.is_authenticated():
+        device_data = DataPoint.objects.filter(device_id=watch_id)
+        return render(request, 'analysis.html', {'device_data': device_data})
+    else:
+        c = {}
+        c.update(csrf(request))
+        return render_to_response('logout.html', c)
 
 
 # dynamic API for D3 graph

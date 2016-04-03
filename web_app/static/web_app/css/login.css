@@ -18,3 +18,11 @@
     text-align: center;
     color: black;
 }
+
+label{
+    padding-left: 8cm;
+    float: left;
+    clear: left;
+}
+
+
