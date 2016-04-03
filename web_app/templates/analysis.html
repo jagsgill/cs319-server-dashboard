@@ -41,7 +41,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="not-active"><a href="http://localhost:8000/dashboard/">Device Listing</a></li>
+            <li class="not-active"><a href="http://localhost:8000/dashboard/">Dashboard</a></li>
           </ul>
 
           <ul class="nav navbar-nav navbar-right">
@@ -52,79 +52,78 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="splash-image">
+        <div class="container">
+          <!-- Main component for a primary marketing message or call to action -->
+          <div class="jumbotron">
+            <h2>Device Analysis</h2>
+                 {% for data in device_data|slice:":1" %}
+                    <p>Device ID: {{ data.device_id }}</p>
+                 {% endfor %}
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Currently Connected</h3>
+                      </div>
+                      <div class="panel-body">
+                        Yes/No
+                      </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Devices Currently Connected</h3>
+                      </div>
+                      <div class="panel-body">
+                        Data
+                      </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-primary">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">Average Connection Length (minutes)</h3>
+                      </div>
+                      <div class="panel-body">
+                        Data
+                      </div>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Main component for a primary marketing message or call to action -->
-      <div class="jumbotron">
-        <h1>Analysis & Reporting Dashboard</h1>
-             {% for data in device_data|slice:":1" %}
-                <p>Device ID: {{ data.device_id }}</p>
-             {% endfor %}
-        <div class="row">
-            <div class="col-md-4">
-                <div class="panel panel-primary">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">Currently Connected</h3>
-                  </div>
-                  <div class="panel-body">
-                    Yes/No
-                  </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="chart">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h3 style="font-weight: bold;">Filter Graph</h3>
+                    <p>Start Date: <input type="text" id="startDate"></p>
+                    <p>End Date: <input type="text" id="endDate"></p>
+                    <p>Sensor Type
+                      <select id="sensorType" class="form-control">
+                        <option>Accelerometer</option>
+                        <option>Battery Life</option>
+                      </select>
+                    </p>
+                    <p>Analysis Type
+                      <select class="form-control">
+                        <option>Line Chart</option>
+                      </select>
+                    </p>
+                    <p>
+                      Live Update: <input id="liveUpdate" type="checkbox">
+                    </p>
+                    <p>
+                      <a id="generateGraph" class="btn btn-lg btn-primary" href="#" role="button">Filter Graph &raquo;</a>
+                    </p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="panel panel-primary">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">Devices Currently Connected</h3>
-                  </div>
-                  <div class="panel-body">
-                    Data
-                  </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="panel panel-primary">
-                  <div class="panel-heading">
-                    <h3 class="panel-title">Average Connection Length (minutes)</h3>
-                  </div>
-                  <div class="panel-body">
-                    Data
-                  </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-8">
-                <div class="chart">
-                </div>
-            </div>
-            <div class="col-md-4">
-                <h3 style="font-weight: bold;">Filter Graph</h3>
-                <p>Start Date: <input type="text" id="startDate"></p> 
-                <p>End Date: <input type="text" id="endDate"></p>
-                <p>Sensor Type 
-                  <select id="sensorType" class="form-control">
-                    <option>Accelerometer</option>
-                    <option>Battery Life</option>
-                  </select> 
-                </p>
-                <p>Analysis Type
-                  <select class="form-control">
-                    <option>Line Chart</option>
-                  </select> 
-                </p>
-                <p>
-                  <a id="generateGraph" class="btn btn-lg btn-primary" href="#" role="button">Filter Graph &raquo;</a>
-                </p>
-                <p>
-                  Live Update: <input id="liveUpdate" type="checkbox">
-                </p>
-            </div>
-        </div>
-        
-      </div>
-
-    </div> <!-- /container -->
+          </div>
+        </div> <!-- /container -->
+    </div> <!-- /splash image -->
 
 
     <!-- Bootstrap core JavaScript

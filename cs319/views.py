@@ -26,10 +26,13 @@ def authview(request):
         auth.login(request,user)
         device_list = DataPoint.objects.values('device_id').order_by('device_id')
         distinct_device_list = []
+        distinct_device_count = 0
         for d in device_list:
             if d not in distinct_device_list:
                 distinct_device_list.append(d)
-        return render(request, 'dashboard.html', {'device_list': distinct_device_list})
+                distinct_device_count += 1
+        return render(request, 'dashboard.html', {'device_list': distinct_device_list,
+                                              'distinct_device_count': distinct_device_count})
         #return render_to_response('dashboard.html')
     else:
         return HttpResponseRedirect('/invalidlogin')
