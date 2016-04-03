@@ -4,6 +4,10 @@
 # http://rockingdlabs.dunmire.org/exercises-experiments/ssl-client-certs-to-secure-mqtt
 # https://jamielinux.com/docs/openssl-certificate-authority/sign-server-and-client-certificates.html
 
+# Important: as recently as Sept. 2015 http://stackoverflow.com/questions/32815429/detecting-duplicate-client-ids-in-mqtt
+#            if 2 clients connect to Mosquitto broker using identical client ids, then they will fall into
+#            a non-terminating disconnect-reconnect cycle. It is up to clients to have a unique client id !
+
 import paho.mqtt.client as mqtt
 import ssl
 import sys
@@ -15,7 +19,8 @@ sys.path.append('/vagrant/synced_data/cs319-server-webApp/cs319')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 from django.conf import settings
 sys.path.append("/vagrant/synced_data/cs319-server-webApp")
-from web_app.models import DataPoint
+from web_app.models import DataPoint, ClientCount, ConnectedDevice
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 # ----------- User Variables ----------- #
 
@@ -26,12 +31,16 @@ timeout = 60
 username = "defaultserver"
 password = "vandricoserver"
 
-clientId = "test_broker_manager"
-sensorsTopic = "sensors/#"  # server subscribes to everything under
+clientId = "broker_manager"
+clientsTopic = "client/watch/#"  # server subscribes to everything client's publish
 
+# Note: make sure server has permission to read and/or write to all topics here:
 topicCACert = 'broker/ssl/ca/cert'
 topicClientCert = 'broker/ssl/client/cert'
 topicClientKey = 'broker/ssl/client/key'
+# topicBrokerClientCount = '$SYS/broker/clients/connected'  # for number of connected clients
+# topicBrokerSubscribe = '$SYS/broker/log/M/subscribe'
+# topicBrokerUnsubscribe = '$SYS/broker/log/M/unsubscribe'
 
 sslDir = "/vagrant/synced_data/cs319-server-webApp/utils"
 
@@ -40,7 +49,7 @@ clientCert = sslDir+"/client.crt"
 clientKey = sslDir+"/client.key"
 sslFiles = [caCert, clientCert, clientKey]
 
-tags = ['accel', 'gps', 'combined', 'batteryanduploadrate']
+sensor_data_tags = ['accel', 'gps', 'combined', 'batteryanduploadrate', 'status']
 
 
 # ----------- Encrypted connection set-up ----------- #
@@ -94,7 +103,7 @@ def write_file(path, content):
     return
 
 
-sslSetupClient = mqtt.Client()
+sslSetupClient = mqtt.Client(clientId)
 sslSetupClient.on_connect = connect_for_ssl_setup
 sslSetupClient.on_message = message_for_ssl_setup
 
@@ -105,35 +114,51 @@ sslSetupClient.on_message = message_for_ssl_setup
 # reconnect then subscriptions will be renewed.
 def on_connect(client, userdata, rc):
     print(" *** Connected to broker: result code %s *** \n" % str(rc))
-    client.subscribe(sensorsTopic)
+    # client.subscribe(topicBrokerClientCount)
+    # client.subscribe(topicBrokerSubscribe)
+    # client.subscribe(topicBrokerUnsubscribe)
+    client.subscribe(clientsTopic)
     return
 
 
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
-    print ('Topic: ', msg.topic, ' Message: ', str(msg.payload))
+    # print ('Topic: ', msg.topic, ' Message: ', str(msg.payload))
 
     # watches will send data to topics under   sensors/<client id>
     # e.g. watch with id 999 sends gps data to sensors/999/gps
     # and we want to find the ending "tag" e.g. gps
 
     tag = ''
-    for t in tags:  # tags is a constant defined in User Variables section
+    for t in sensor_data_tags:  # tags is a constant defined in User Variables section
         if msg.topic.endswith(t):
             tag = t
             break
 
-    # if tag is still empty, we cannot handle the msg type so warn and skip it
-    if not tag:
+    # if tag is still empty, either it's an unknown msg type or a broker topic (.e.g $SYS/...)
+    broker_tags = {
+            # topicBrokerClientCount   : "clientcount",
+            # topicBrokerSubscribe     : "clientsubscribe",
+            # topicBrokerUnsubscribe   : "clientunsubscribe",
+    }
+
+    if not tag and msg.topic in broker_tags:
+        tag = broker_tags.get(msg.topic)
+    elif not tag:
+        # otherwise output a warning on stdout
         print(" **** WARNING: Unhandled Message Format **** ")
         print("       Topic: %s " % msg.topic)
         print("       Message: %s " % msg.payload)
-        print("       Allowed types: %s " % tags)
+        print("       Allowed types: %s " % sensor_data_tags)
         return
 
     handler = {
         # tag at end of topic : function to handle this type of msg
-        "combined": combined_data_handler
+        "combined"          : combined_data_handler,
+        "clientcount"       : client_count_handler,
+        "status"            : client_status_handler
+        # "clientsubscribe"   : client_subscribe_to_broker_handler,
+        # "clientunsubscribe" : client_unsubscribe_from_broker_handler
     }.get(tag)
 
     # call the correct handler for the msg type
@@ -145,7 +170,8 @@ def on_message(client, userdata, msg):
 
 
 def combined_data_handler(content):
-
+    # print(str(content))
+    return
     messages = [x.strip() for x in str(content).split('$')]
     messages = messages[:-1]  # remove extra empty string at end
 
@@ -176,14 +202,60 @@ def combined_data_handler(content):
     return
 
 
+def client_count_handler():
+    try:
+        # print("Updating client count to: ", content)
+        obj = ClientCount.objects.get()
+        setattr(obj, 'count', ConnectedDevice.objects.count())
+        obj.save()
+    except ObjectDoesNotExist:
+        # print("First run: no ClientCount object in DB. Creating one...")
+        ClientCount(count = ConnectedDevice.objects.count()).save()
+    except MultipleObjectsReturned:
+        # print("Warning: expected 1 ClientCount object in DB but found multiple... updating all")
+        for obj in ClientCount.objects.all():
+            obj.update(count = ConnectedDevice.objects.count())
+    return
 
 
+def client_status_handler(content):
+    # expect content to be a string of whitespace separated values
+    # update connected device lists then update the connected device count
+    data = content.split()
+    if data[0] == '0':
+        client_unsubscribe_from_broker_handler(data[1])
+    else:
+        client_subscribe_to_broker_handler(data[1])
+    client_count_handler()
+    return
+
+
+def client_subscribe_to_broker_handler(id):
+    # content should be unique client id
+    print("Client subscribed:   %s" % id)
+    try:
+        ConnectedDevice(_id = id).save()
+    except Exception as e:
+        print(str(e))
+    return
+
+
+def client_unsubscribe_from_broker_handler(id):
+    # content should be unique client id
+    # Clients must use a will: content=<client id> and will-topic=client/watch/<id>/status
+    # in case they disconnect unexpectedly (e.g. loss of wifi)
+    print("Client unsubscribed:   %s" % id)
+    try:
+        ConnectedDevice.objects.get(_id = id).delete()
+    except Exception as e:
+        print(str(e))
+    return
 
 
 # ----------- Start subscriber ----------- #
 
 
-client = mqtt.Client()
+client = mqtt.Client(clientId)
 client.on_connect = on_connect
 client.on_message = on_message
 
