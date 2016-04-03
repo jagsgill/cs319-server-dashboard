@@ -19,7 +19,7 @@ sys.path.append('/vagrant/synced_data/cs319-server-webApp/cs319')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 from django.conf import settings
 sys.path.append("/vagrant/synced_data/cs319-server-webApp")
-from web_app.models import DataPoint, ClientCount, ConnectedDevice
+from web_app.models import *
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 # ----------- User Variables ----------- #
@@ -38,7 +38,7 @@ clientsTopic = "client/watch/#"  # server subscribes to everything client's publ
 topicCACert = 'broker/ssl/ca/cert'
 topicClientCert = 'broker/ssl/client/cert'
 topicClientKey = 'broker/ssl/client/key'
-# topicBrokerClientCount = '$SYS/broker/clients/connected'  # for number of connected clients
+# topicBrokerConnectedDeviceCount = '$SYS/broker/clients/connected'  # for number of connected clients
 # topicBrokerSubscribe = '$SYS/broker/log/M/subscribe'
 # topicBrokerUnsubscribe = '$SYS/broker/log/M/unsubscribe'
 
@@ -114,7 +114,7 @@ sslSetupClient.on_message = message_for_ssl_setup
 # reconnect then subscriptions will be renewed.
 def on_connect(client, userdata, rc):
     print(" *** Connected to broker: result code %s *** \n" % str(rc))
-    # client.subscribe(topicBrokerClientCount)
+    # client.subscribe(topicBrokerConnectedDeviceCount)
     # client.subscribe(topicBrokerSubscribe)
     # client.subscribe(topicBrokerUnsubscribe)
     client.subscribe(clientsTopic)
@@ -137,7 +137,7 @@ def on_message(client, userdata, msg):
 
     # if tag is still empty, either it's an unknown msg type or a broker topic (.e.g $SYS/...)
     broker_tags = {
-            # topicBrokerClientCount   : "clientcount",
+            # topicBrokerConnectedDeviceCount   : "clientcount",
             # topicBrokerSubscribe     : "clientsubscribe",
             # topicBrokerUnsubscribe   : "clientunsubscribe",
     }
@@ -202,19 +202,47 @@ def combined_data_handler(content):
     return
 
 
-def client_count_handler():
+def client_count_handler(status, id):
     try:
-        # print("Updating client count to: ", content)
-        obj = ClientCount.objects.get()
-        setattr(obj, 'count', ConnectedDevice.objects.count())
-        obj.save()
+        if status == '1':
+        # new or existing device connected
+            print("Changing count, device connected: %s \n" % id)
+            totalCountObj = TotalDeviceCount.objects.get()
+            connectedCountObj = ConnectedDeviceCount.objects.get()
+            setattr(totalCountObj, 'count', TotalDeviceCount.objects.count())
+            setattr(connectedCountObj, 'count', ConnectedDevice.objects.count())
+            totalCountObj.save()
+            connectedCountObj.save()
+        else:
+            print("Changing count, device disconnected: %s \n" % id)
+        # removing a device
+            offlineCountObj = OfflineDevice.objects.get()
+            setattr(offlineCountObj, 'count', OfflineDevice.objects.count())
+            offlineCountObj.save()
     except ObjectDoesNotExist:
-        # print("First run: no ClientCount object in DB. Creating one...")
-        ClientCount(count = ConnectedDevice.objects.count()).save()
+        # print("First run: no TotalDeviceCount and ConnectedDeviceCount objects in DB. Creating them...")
+        TotalDeviceCount(count = Device.objects.count()).save()
+        ConnectedDeviceCount(count = ConnectedDevice.objects.count()).save()
     except MultipleObjectsReturned:
-        # print("Warning: expected 1 ClientCount object in DB but found multiple... updating all")
-        for obj in ClientCount.objects.all():
+        # print("Warning: expected 1 ConnectedDeviceCount object in DB but found multiple... updating all")
+        for obj in ConnectedDeviceCount.objects.all():
             obj.update(count = ConnectedDevice.objects.count())
+
+
+    print("Count check: %s connected, %s disconnected, %s total devices" % (str(ConnectedDevice.objects.count()), str(OfflineDevice.objects.count()), str(Device.objects.count())))
+
+    print("All devices:")
+    for obj in Device.objects.all():
+        print("    %s\n" % getattr(obj, '_id'))
+
+    print("Connected devices:")
+    for obj in ConnectedDevice.objects.all():
+        print("    %s\n" % getattr(obj, '_id'))
+
+    print("Offline devices:")
+    for obj in OfflineDevice.objects.all():
+        print("    %s\n" % getattr(obj, '_id'))
+
     return
 
 
@@ -226,7 +254,7 @@ def client_status_handler(content):
         client_unsubscribe_from_broker_handler(data[1])
     else:
         client_subscribe_to_broker_handler(data[1])
-    client_count_handler()
+    client_count_handler(data[0], data[1])
     return
 
 
@@ -234,7 +262,9 @@ def client_subscribe_to_broker_handler(id):
     # content should be unique client id
     print("Client subscribed:   %s" % id)
     try:
+        Device(_id = id).save()
         ConnectedDevice(_id = id).save()
+        OfflineDevice.get(_id = id).delete()
     except Exception as e:
         print(str(e))
     return
@@ -247,6 +277,7 @@ def client_unsubscribe_from_broker_handler(id):
     print("Client unsubscribed:   %s" % id)
     try:
         ConnectedDevice.objects.get(_id = id).delete()
+        OfflineDevice(_id = id).save()
     except Exception as e:
         print(str(e))
     return
