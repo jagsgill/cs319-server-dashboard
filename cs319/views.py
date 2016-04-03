@@ -43,7 +43,6 @@ def authview(request):
         return render(request, 'dashboard.html', {'device_list': distinct_device_list,
                                               'distinct_device_count': distinct_device_count})
     else:
-        #return HttpResponseRedirect('/invalidlogin')
         return render_to_response('invalidlogin.html', {'full_name': request.user.username})
 
 def loggedin(request):
