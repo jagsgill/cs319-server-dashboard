@@ -14,9 +14,20 @@ from django.contrib.auth.decorators import login_required
 from web_app.models import DataPoint
 
 def login(request):
-    c = {}
-    c.update(csrf(request))
-    return render_to_response('login.html', c)
+    if request.user.is_authenticated():
+        device_list = DataPoint.objects.values('device_id').order_by('device_id')
+        distinct_device_list = []
+        distinct_device_count = 0
+        for d in device_list:
+            if d not in distinct_device_list:
+                distinct_device_list.append(d)
+                distinct_device_count += 1
+        return render(request, 'dashboard.html', {'device_list': distinct_device_list,
+                                              'distinct_device_count': distinct_device_count})
+    else:
+        c = {}
+        c.update(csrf(request))
+        return render_to_response('login.html', c)
 
 def authview(request):
     username = request.POST.get('username','')
@@ -38,7 +49,10 @@ def authview(request):
         return HttpResponseRedirect('/invalidlogin')
 
 def loggedin(request):
-    return render_to_response('loggedin.html', {'full_name': request.user.username})
+    if request.user.is_authenticated():
+        return render_to_response('loggedin.html', {'full_name': request.user.username})
+    else:
+        return render_to_response('invalidlogin.html', {'full_name': request.user.username})
 
 @login_required(login_url='/')
 def invalidlogin(request):
