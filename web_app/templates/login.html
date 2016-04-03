@@ -1,13 +1,50 @@
-{% block content %}
-    {% if form.errors %}
-        <p class="error">Not a valid user name or password</p>
-    {% endif %}
-    <form action="/dashboard" method="post">{% csrf_token %}
-        <label for="username">User name:</label>
-        <input type="text" name="username" value="" id="username">
-        <label for="password">Password:</label>
-        <input type="password" name="password" value="" id="password">
+{% load staticfiles %}
 
-        <input type="submit" value="login" />
-    </form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!--link rel="icon" href="../../favicon.ico"-->
+
+    <title>IoT Smartwatches</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static "web_app/css/bootstrap.min.css" %}"/>
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet" -->
+
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" type="text/css" href="{% static "web_app/css/login.css" %}" />
+
+  </head>
+
+  <body>
+
+    <div class="splash-image">
+        <div class="splash-content">
+            <div class="jumbotron">
+                {% block content %}
+                    {% if form.errors %}
+                        <p class="error">Not a valid user name or password</p>
+                    {% endif %}
+                    <form action="/dashboard" method="post">{% csrf_token %}
+                        <label for="username">User name:</label>
+                        <input type="text" name="username" value="" id="username"> <br>
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" value="" id="password"><br>
+                        <input type="submit" value="login" />
+                    </form>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+  </body>
+</html>

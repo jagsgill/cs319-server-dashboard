@@ -1,16 +1,20 @@
-body {
-  padding-top: 70px;
-}
-
 .splash-image {
     display: table;
     position: relative;
     width: 100%;
     height: 100%;
-    background-image: url("/static/web_app/assets/dashboard-data-nodes.jpg")  !important;
+    background-image: url("/static/web_app/assets/data-nodes.jpg")  !important;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     background-size: cover;
     -o-background-size: cover;
     height:100vh;
+}
+
+.splash-content{
+    position: absolute;
+    top: 45%;
+    width: 50%;
+    text-align: center;
+    color: black;
 }
