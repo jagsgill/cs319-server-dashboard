@@ -45,7 +45,7 @@
           </ul>
 
           <ul class="nav navbar-nav navbar-right">
-{#            <li><a href="signIn.html">Logout</a></li>#}
+            <li><a href="logout.html">Logout</a></li>
           </ul>
 
         </div><!--/.nav-collapse -->
@@ -100,8 +100,8 @@
                 </div>
                 <div class="col-md-4">
                     <h3 style="font-weight: bold;">Filter Graph</h3>
-                    <p>Start Date: <input type="text" id="startDate"></p>
-                    <p>End Date: <input type="text" id="endDate"></p>
+                    <p id="sDate">Start Date: <input type="text" id="startDate"></p>
+                    <p id="eDate">End Date: <input type="text" id="endDate"></p>
                     <p>Sensor Type
                       <select id="sensorType" class="form-control">
                         <option>Accelerometer</option>
@@ -117,7 +117,7 @@
                       Live Update: <input id="liveUpdate" type="checkbox">
                     </p>
                     <p>
-                      <a id="generateGraph" class="btn btn-lg btn-primary" href="#" role="button">Filter Graph &raquo;</a>
+                      <a id="generateGraph" class="btn btn-lg btn-primary" role="button">Filter Graph &raquo;</a>
                     </p>
                 </div>
             </div>
