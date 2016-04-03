@@ -129,7 +129,7 @@ $(document).ready(function () {
     //  Get URL, parse to get device ID
     var url = window.location.href;
     var regex =/[^/]*$/
-    console.log(regex);
+    url = url.match(regex);
     console.log("url: http://localhost:8000/dashboard/live/" + url);
     d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
     var newData=[];
