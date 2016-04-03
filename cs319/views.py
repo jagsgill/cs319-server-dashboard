@@ -35,7 +35,10 @@ def authview(request):
         return HttpResponseRedirect('/invalidlogin')
 
 def loggedin(request):
-    return render_to_response('loggedin.html', {'full_name': request.user.username})
+    if request.user.is_authenticated():
+        return render_to_response('loggedin.html', {'full_name': request.user.username})
+    else:
+        return render_to_response('invalidlogin.html', {'full_name': request.user.username})
 
 @login_required(login_url='/')
 def invalidlogin(request):
