@@ -128,10 +128,9 @@ $(document).ready(function () {
     console.log("getting data");
     //  Get URL, parse to get device ID
     var url = window.location.href;
-    var regex =/[^/]*$/g
-    url = url.match(regex)
+    var regex =/[^/]*$/
+    console.log(regex);
     console.log("url: http://localhost:8000/dashboard/live/" + url);
-
     d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
     var newData=[];
     json.forEach(function(d){
@@ -147,7 +146,7 @@ $(document).ready(function () {
     console.log("getting data");
     //  Get URL, parse to get device ID
     var url = window.location.href;
-    var regex =/[^/]*$/g
+    var regex =/[^/]*$/
     url = url.match(regex)
     console.log("url: http://localhost:8000/dashboard/live/" + url);
     d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
