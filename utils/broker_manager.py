@@ -170,7 +170,7 @@ def on_message(client, userdata, msg):
 
 
 def combined_data_handler(content):
-    # print(str(content))
+    print("Received data: %s" % str(content))
     return
     messages = [x.strip() for x in str(content).split('$')]
     messages = messages[:-1]  # remove extra empty string at end
@@ -225,8 +225,7 @@ def client_count_handler(status, id):
         ConnectedDeviceCount(count = ConnectedDevice.objects.count()).save()
     except MultipleObjectsReturned:
         # print("Warning: expected 1 ConnectedDeviceCount object in DB but found multiple... updating all")
-        for obj in ConnectedDeviceCount.objects.all():
-            obj.update(count = ConnectedDevice.objects.count())
+        pass
 
 
     print("Count check: %s connected, %s disconnected, %s total devices" % (str(ConnectedDevice.objects.count()), str(OfflineDevice.objects.count()), str(Device.objects.count())))
@@ -264,7 +263,7 @@ def client_subscribe_to_broker_handler(id):
     try:
         Device(_id = id).save()
         ConnectedDevice(_id = id).save()
-        OfflineDevice.get(_id = id).delete()
+        OfflineDevice.objects.get(_id = id).delete()
     except Exception as e:
         print(str(e))
     return
