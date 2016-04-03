@@ -1,16 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 import json
+from django.shortcuts import render_to_response
+from django.core.context_processors import csrf
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-#PO
-from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect
-from django.contrib import auth
-from django.core.context_processors import csrf
 from django.contrib.auth.decorators import login_required
-
 from web_app.models import DataPoint
 
 def login(request):
@@ -44,9 +42,9 @@ def authview(request):
                 distinct_device_count += 1
         return render(request, 'dashboard.html', {'device_list': distinct_device_list,
                                               'distinct_device_count': distinct_device_count})
-        #return render_to_response('dashboard.html')
     else:
-        return HttpResponseRedirect('/invalidlogin')
+        #return HttpResponseRedirect('/invalidlogin')
+        return render_to_response('invalidlogin.html', {'full_name': request.user.username})
 
 def loggedin(request):
     if request.user.is_authenticated():
@@ -54,12 +52,13 @@ def loggedin(request):
     else:
         return render_to_response('invalidlogin.html', {'full_name': request.user.username})
 
-@login_required(login_url='/')
 def invalidlogin(request):
     return render_to_response('invalidlogin.html')
 
 def logout(request):
     auth.logout(request)
-    return render_to_response('logout.html')
+    c = {}
+    c.update(csrf(request))
+    return render_to_response('logout.html', c)
 
 

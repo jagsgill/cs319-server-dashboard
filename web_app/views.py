@@ -68,7 +68,7 @@ def analyze_device(request, watch_id):
     else:
         c = {}
         c.update(csrf(request))
-        return render_to_response('login.html', c)
+        return render_to_response('logout.html', c)
 
 
 # dynamic API for D3 graph
