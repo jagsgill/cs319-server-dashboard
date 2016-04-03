@@ -44,6 +44,7 @@ IP=$(gcloud compute instances list --format=text | grep '^networkInterfaces\[[0-
 #   https://bowerstudios.com/node/1007
 
 PATH_BASE="/etc/mosquitto"
+sudo chmod -R 777 '/etc/mosquitto'
 PATH_SSL="$PATH_BASE/certs"
 
 CNF='openssl.cnf'
@@ -131,15 +132,17 @@ read -d '' ACL <<EOF
 
 user defaultwatch
 topic readwrite sensors/#
+topic readwrite \$SYS/broker/log/M/unsubscribe
 topic read broker/#
 
 # server can read from all topics
 user defaultserver
+topic read \$SYS/#
 topic read #
 
-# broker can read and write under broker/#
+# broker can read and write to any topic
 user broker
-topic readwrite broker/#
+topic readwrite #
 EOF
 echo "$ACL" > $PATH_ACL
 
@@ -147,8 +150,11 @@ echo "$ACL" > $PATH_ACL
 CONF="
 ### General Options ###
 
-# location of the topic access file
-acl_file $PATH_ACL
+# interval (seconds) to send updates to $SYS hierarchy
+sys_interval 5
+
+# location of the topic access file, disabled because using it stops logging to $SYS/# topics
+# acl_file $PATH_ACL
 
 # location of account user/pass file
 password_file $PATH_PASSWDFILE
