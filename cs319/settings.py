@@ -148,6 +148,7 @@ STATICFILES_DIRS = (
 STATIC_ROOT = '/vagrant/synced_data/cs319-server-webApp/static_root/'
 
 
+
 # New Stuff Added by cs319 Team
 # ==================================================================
 # template path for web_app
@@ -168,3 +169,6 @@ STATICFILES_DIRS = (
         'static',
     ),
 )
+
+# LOGIN_URL = '/'
+# LOGIN_REDIRECT_URL = '/'

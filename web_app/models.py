@@ -31,7 +31,6 @@ class LocationPoint(models.Model):
     long = models.FloatField()
 
 
-
 class TotalDeviceCount(models.Model):
     count = models.IntegerField()
 

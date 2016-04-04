@@ -6,6 +6,8 @@ from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from models import *
 
+from django.contrib.auth.decorators import login_required
+
 
 # date  range //PO
 def get_device_by_time_range(request, start_time, end_time):
@@ -15,14 +17,15 @@ def get_device_by_time_range(request, start_time, end_time):
 
 # make query only get unique IDs //PO
 # dashboard (device listing) page
-def get_device_ids(request):
+# @login_required(login_url="/login")
+def build_dashboard(request):
     distinct_device_list = Device.objects.all()
     online_device_list = ConnectedDevice.objects.all()
     offline_device_list = OfflineDevice.objects.all()
 
-    distinct_device_count = TotalDeviceCount.objects.all().values('count')[0].get('count')
-    online_device_count = ConnectedDeviceCount.objects.all().values('count')[0].get('count')
-    offline_devices_count = OfflineDeviceCount.objects.all().values('count')[0].get('count')
+    distinct_device_count = TotalDeviceCount.objects.all().values('count')#[0].get('count')
+    online_device_count = ConnectedDeviceCount.objects.all().values('count')#[0].get('count')
+    offline_devices_count = OfflineDeviceCount.objects.all().values('count')#[0].get('count')
     return render(request, 'dashboard.html', {'distinct_device_list': distinct_device_list,
                                               'online_device_list': online_device_list,
                                               'offline_device_list': offline_device_list,
@@ -38,7 +41,7 @@ def analyze_device(request, watch_id):
 
 
 # dynamic API for D3 graph
-def live(request, watch_id):
+def build_accel_api(request, watch_id):
     seconds_partition = 4000
     data = AccelPoint.objects.filter(device_id=watch_id, accelTime__gt=int(time.time())-seconds_partition).\
         values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel')
@@ -47,11 +50,31 @@ def live(request, watch_id):
 
 
 # dynamic API for D3 graph
-def live_with_date_range(request, watch_id):
-    start_time = request.GET.get('start', '')
-    end_time = request.GET.get('end', '')
+def build_accel_api_with_date(request, watch_id):
+    start_time = request.GET.get('start', '0')
+    end_time = request.GET.get('end', '0')
     data = AccelPoint.objects.filter(device_id=watch_id, accelTime__gte=int(start_time),
                                      accelTime__lte=int(end_time)).values('device_id', 'accelTime','xAccel', 'yAccel',
                                                                           'zAccel')
+    json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
+    return HttpResponse(json_str, content_type='application/json; charset=utf8')
+
+
+# dynamic API for D3 graph
+def build_battery_api(request, watch_id):
+    seconds_partition = 4000
+    data = BatteryUploadRatePoint.objects.filter(device_id=watch_id, timestamp__gt=int(time.time())-seconds_partition).\
+        values('device_id', 'timestamp', 'battery_level', 'upload_rate')
+    json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
+    return HttpResponse(json_str, content_type='application/json; charset=utf8')
+
+
+# dynamic API for D3 graph
+def build_battery_api_with_date(request, watch_id):
+    start_time = request.GET.get('start', '0')
+    end_time = request.GET.get('end', '0')
+    data = BatteryUploadRatePoint.objects.filter(device_id=watch_id, timestamp__gte=int(start_time),
+                                                 timestamp__lte=int(end_time)).values('device_id', 'timestamp',
+                                                                                      'battery_level', 'upload_rate')
     json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
     return HttpResponse(json_str, content_type='application/json; charset=utf8')
