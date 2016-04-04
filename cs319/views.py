@@ -9,14 +9,19 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from cs319.data_manager import DataManager
-
-dm = DataManager()
 
 def login(request):
     if request.user.is_authenticated():
-        return render(request, 'dashboard.html', {'device_list': dm.get_dist_dev_list(),
-                                              'distinct_device_count': dm.get_dist_dev_count()})
+        device_list = AccelPoint.objects.values('device_id').order_by('device_id')
+        distinct_device_list = []
+        distinct_device_count = 0
+        for d in device_list:
+            if d not in distinct_device_list:
+                distinct_device_list.append(d)
+                distinct_device_count += 1
+        return render(request, 'dashboard.html', {'device_list': distinct_device_list,
+                                              'distinct_device_count': distinct_device_count})
+
     else:
         c = {}
         c.update(csrf(request))
@@ -28,8 +33,16 @@ def authview(request):
     user = auth.authenticate(username=username,password=password)
     if user is not None:
         auth.login(request,user)
-        return render(request, 'dashboard.html', {'device_list': dm.get_dist_dev_list(),
-                                              'distinct_device_count': dm.get_dist_dev_count()})
+        device_list = AccelPoint.objects.values('device_id').order_by('device_id')
+        distinct_device_list = []
+        distinct_device_count = 0
+        for d in device_list:
+            if d not in distinct_device_list:
+                distinct_device_list.append(d)
+                distinct_device_count += 1
+        return render(request, 'dashboard.html', {'device_list': distinct_device_list,
+                                              'distinct_device_count': distinct_device_count})
+
     else:
         return render_to_response('invalidlogin.html', {'full_name': request.user.username})
 

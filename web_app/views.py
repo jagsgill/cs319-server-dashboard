@@ -8,15 +8,17 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
+from models import *
 
-from models import DataPoint
+
 from cs319.data_manager import DataManager
-
 dm = DataManager()
+
+
 
 # date  range //PO
 def get_device_by_time_range(request, start_time, end_time):
-    device_list = DataPoint.objects.filter(accelTime__gte=start_time).filter(accelTime__lte=end_time)
+    device_list = AccelPoint.objects.filter(accelTime__gte=start_time).filter(accelTime__lte=end_time)
     return render(request, 'dashboard.html', {'device_list': device_list}) # may need to be changed
 
 
@@ -37,6 +39,7 @@ def get_device_ids(request):
                                                   'distinct_device_count': distinct_device_count,
                                                   'online_device_count': online_device_count,
                                                   'offline_devices_count': offline_devices_count})
+
     else:
         c = {}
         c.update(csrf(request))
@@ -46,7 +49,7 @@ def get_device_ids(request):
 # dynamic analysis page for a device
 def analyze_device(request, watch_id):
     if request.user.is_authenticated():
-        device_data = DataPoint.objects.filter(device_id=watch_id)
+        device_data = AccelPoint.objects.filter(device_id=watch_id)
         return render(request, 'analysis.html', {'device_data': device_data})
     else:
         c = {}
@@ -57,8 +60,8 @@ def analyze_device(request, watch_id):
 # dynamic API for D3 graph
 def live(request, watch_id):
     seconds_partition = 4000
-    data = DataPoint.objects.filter(device_id=watch_id, accelTime__gt=int(time.time())-seconds_partition).\
-        values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel', 'battery_level')
+    data = AccelPoint.objects.filter(device_id=watch_id, accelTime__gt=int(time.time())-seconds_partition).\
+        values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel')
     json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
     return HttpResponse(json_str, content_type='application/json; charset=utf8')
 
@@ -67,8 +70,7 @@ def live(request, watch_id):
 def live_with_date_range(request, watch_id):
     start_time = request.GET.get('start', '')
     end_time = request.GET.get('end', '')
-    data = DataPoint.objects.filter(device_id=watch_id, accelTime__gte=int(start_time),
-                                    accelTime__lte=int(end_time)).values('device_id', 'accelTime',
-                                                                         'xAccel', 'yAccel', 'zAccel', 'battery_level')
+    data = AccelPoint.objects.filter(device_id=watch_id, accelTime__gte=int(start_time), accelTime__lte=int(end_time)).values('device_id', 'accelTime','xAccel', 'yAccel', 'zAccel')
+
     json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
     return HttpResponse(json_str, content_type='application/json; charset=utf8')
