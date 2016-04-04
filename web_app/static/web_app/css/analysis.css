@@ -39,3 +39,9 @@
     -o-background-size: cover;
     height:100vh;
 }
+
+.jumbotron .error {
+	font-size: 14px;
+	font-weight: bold;
+	color: red;
+}
