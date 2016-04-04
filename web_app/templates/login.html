@@ -34,8 +34,7 @@
                     {% if form.errors %}
                         <p class="error">Not a valid user name or password</p>
                     {% endif %}
-<<<<<<< 35d6435dc9b3c9c4b2916c29f2b511df27ad61fa
-                    <form action="/dashboard" method="post">{% csrf_token %}
+                    <form action="/dologin" method="post">{% csrf_token %}
                         <div class="login-label">
                             <label for="username">User name:</label>
                         </div>
@@ -51,14 +50,6 @@
                         <div class="login-input-button">
                             <input type="submit" value="login" />
                         </div>
-=======
-                    <form action="/dologin" method="post">{% csrf_token %}
-                        <label for="username">User name:</label>
-                        <input type="text" name="username" value="" id="username"> <br>
-                        <label for="password">Password:</label>
-                        <input type="password" name="password" value="" id="password"><br>
-                        <input type="submit" value="login" />
->>>>>>> login and logout fixed
                     </form>
                 {% endblock %}
                     </div>
