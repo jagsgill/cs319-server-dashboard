@@ -60,7 +60,7 @@
                         <h3 class="panel-title">Total Number of Devices</h3>
                       </div>
                       <div class="panel-body">
-                          <h4><b>{{distinct_device_count}}</b></h4>
+                          <h4><b>{{ distinct_device_count }}</b></h4>
                       </div>
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                         <h3 class="panel-title">Devices Online</h3>
                       </div>
                       <div class="panel-body">
-                        <h4><b>Data</b></h4>
+                        <h4><b>{{ online_device_count }}</b></h4>
                       </div>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                         <h3 class="panel-title">Devices Offline</h3>
                       </div>
                       <div class="panel-body">
-                        <h4><b>Data</b></h4>
+                        <h4><b>{{ offline_devices_count }}</b></h4>
                       </div>
                     </div>
                 </div>
@@ -96,34 +96,73 @@
                 <div class="row">
                     <div class="col-md-6">
                         <form>
-                          <input type="radio" name="connected" value="currently_connected"> Device Currently Connected
+                          <input type="radio" name="device_listing" value="all_devices" checked="checked"> All Devices<br>
+                          <input type="radio" name="device_listing" value="online"> Devices Online<br>
+                          <input type="radio" name="device_listing" value="offline"> Devices Offline
                         </form>
-                    </div>
-                    <div class="col-md-6">
-                        (calendar-icon) Last Connection After
                     </div>
                 </div>
               </div>
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>Device ID</th>
-                        <th>Number of Sessions</th>
-                        <th>Currently Connected to Sever</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    {% for device in device_list %}
-                      <tr>
-                        <td><a href="http://localhost:8000/dashboard/{{ device.device_id}}">{{ device.device_id}}</a></td>
-                        <td></td>
-                        <td><p>&#10004; &#10007;</p></td>
-                      </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                <div id="all_devices">
+                    <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Device ID</th>
+                            <th>Number of Sessions</th>
+                            <th>Currently Connected to Sever</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for device in distinct_device_list %}
+                          <tr>
+                            <td><a href="http://localhost:8000/dashboard/{{ device.device_id}}">{{ device.device_id}}</a></td>
+                            <td></td>
+                            <td><p>&#10004; &#10007;</p></td>
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="online">
+                    <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Device ID</th>
+                            <th>Number of Sessions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for device in online_device_list %}
+                          <tr>
+                            <td><a href="http://localhost:8000/dashboard/{{ device.device_id}}">{{ device.device_id}}</a></td>
+                            <td></td>
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="offline">
+                    <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Device ID</th>
+                            <th>Number of Sessions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for device in offline_device_list %}
+                          <tr>
+                            <td><a href="http://localhost:8000/dashboard/{{ device.device_id}}">{{ device.device_id}}</a></td>
+                            <td></td>
+                          </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
           </div>
+
         </div> <!-- /container -->
     </div> <!-- /splash-image -->
 
@@ -132,11 +171,10 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-
-    <link type="text/javascript" src="{% static 'web_app/js/bootstrap.min.js' %}" />
-    <link type="text/javascript" src="{% static 'web_app/js/d3.min.js' %}" />
-    <link type="text/javascript" src="{% static 'web_app/js/dashboard.js' %}" />
-
+    <script src="/static/web_app/js/bootstrap.min.js"></script>
+    <script src="/static/web_app/js/d3.min.js"></script>
+    <script src="/static/web_app/js/jquery-ui.min.js"></script>
+    <script src="/static/web_app/js/dashboard.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <!-- script src="../../assets/js/ie10-viewport-bug-workaround.js"></script -->
   </body>

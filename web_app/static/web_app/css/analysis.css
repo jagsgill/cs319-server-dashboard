@@ -1,7 +1,3 @@
-body {
-  padding-top: 70px;
-}
-
 .form-control{
   width: 50%;
 }
@@ -42,4 +38,10 @@ body {
     background-size: cover;
     -o-background-size: cover;
     height:100vh;
+}
+
+.jumbotron .error {
+	font-size: 14px;
+	font-weight: bold;
+	color: red;
 }
