@@ -43,9 +43,11 @@
           <ul class="nav navbar-nav">
             <li class="not-active"><a href="http://localhost:8000/dashboard/">Dashboard</a></li>
           </ul>
-            <ul class="nav navbar-nav navbar-right">
-          <li><a href="../logout">Logout</a></li>
+
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="logout.html">Logout</a></li>
           </ul>
+
         </div><!--/.nav-collapse -->
       </div>
     </nav>
@@ -98,6 +100,9 @@
                 </div>
                 <div class="col-md-4">
                     <h3 style="font-weight: bold;">Filter Graph</h3>
+                    <p>
+                      Live Update: <input id="liveUpdate" type="checkbox">
+                    </p>
                     <p id="sDate">Start Date: <input type="text" id="startDate"></p>
                     <p id="eDate">End Date: <input type="text" id="endDate"></p>
                     <p>Sensor Type
@@ -110,9 +115,6 @@
                       <select class="form-control">
                         <option>Line Chart</option>
                       </select>
-                    </p>
-                    <p>
-                      Live Update: <input id="liveUpdate" type="checkbox">
                     </p>
                     <p>
                       <a id="generateGraph" class="btn btn-lg btn-primary" role="button">Filter Graph &raquo;</a>

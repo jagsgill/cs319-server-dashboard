@@ -2,12 +2,14 @@ $(document).ready(function () {
 
   $("#startDate").datepicker();
   $("#endDate").datepicker();
-  $(".chart").append("<svg id='lineChart' width='1500' height='550'></svg>");
+  $(".chart").append("<svg id='lineChart' width="+ $(window).width()/1.5 +" height='600'></svg>");
   $("#liveUpdate").prop('checked',true);
   generateGraph();
   
   var interval;
   var sensorType;
+  var yAxVal;
+  var titleText;
   $('#generateGraph').on('click', function (ev) {
     generateGraph();
   });
@@ -16,19 +18,30 @@ $(document).ready(function () {
 	generateGraph();
   });
   
+  $('#sensorType').change(function() {
+	generateGraph();
+  });
+  
   	function generateGraph() {
   		if($("#sensorType").val() == "Accelerometer") {
+  			titleText = "Acceleration over Time";
+  			yAxVal = "Acceleration (m/s^2)";
   	        sensorType = 1;
   	        getDataAccel();
   	    } else if ($("#sensorType").val() == "Battery Life"){
+  	    	titleText = "Battery Life over Time";
+  	    	yAxVal = "Battery Level";
   	        sensorType = 2;
   	        getDataBattery();
   	    } else {
+  	    	titleText = "Acceleration over Time";
+  			yAxVal = "Acceleration (m/s^2)";
   	        getDataAccel();
   	    }
   	    if($("#liveUpdate").is(':checked')) {
   	    	$("#sDate").hide();
   	    	$("#eDate").hide();
+  	    	$("#generateGraph").hide();
   	        if(interval) {
   	            clearInterval(interval);
   	        }
@@ -36,6 +49,7 @@ $(document).ready(function () {
   	    } else {
   	    	$("#sDate").show();
   	    	$("#eDate").show();
+  	    	$("#generateGraph").show();
   	        if(interval) {
   	            clearInterval(interval);
   	        }
@@ -59,12 +73,18 @@ $(document).ready(function () {
     },
 
     lSpace = WIDTH/dataGroup.length;
-
-    xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
-                            return d.accelTime;
-                        }), d3.max(data, function(d) {
-                            return d.accelTime;
-                        })]),
+    var format = d3.time.format("%H:%M:%S"); 
+    xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
+        return d.accelDate;
+    }), d3.max(data, function(d) {
+        return d.accelDate;
+    })]);
+    
+//    xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
+//                            return d.accelTime;
+//                        }), d3.max(data, function(d) {
+//                            return d.accelTime;
+//                        })]);
     yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
     						if(sensorType==2){
     							return 0;
@@ -77,33 +97,62 @@ $(document).ready(function () {
     						} else {
                             return d.accel;
     						}
-                        })]),
-    xAxis = d3.svg.axis().scale(xScale),
+                        })]);
+    xAxis = d3.svg.axis().scale(xScale).ticks(5).tickFormat(format);
     yAxis = d3.svg.axis().scale(yScale).orient("left");
     vis.append("svg:g").attr("class","axis").attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")").call(xAxis);
     vis.append("svg:g").attr("class","axis").attr("transform", "translate(" + (MARGINS.left) + ",0)").call(yAxis);
     var lineGen = d3.svg.line()
     .x(function(d) {
-        return xScale(d.accelTime);
+        return xScale(d.accelDate);
     })
     .y(function(d) {
         return yScale(d.accel);
     })
     .interpolate("basis");
+    vis.append("text")
+//    .attr("text-anchor", "start")  
+//    .attr("transform", "translate("+ 0 +","+MARGINS.top/2+")")
+    .attr("text-anchor", "middle")
+    .attr("transform", "translate("+ 15 +","+(HEIGHT/2)+")rotate(-90)")
+    .style("font-size", "20px")
+    .text(yAxVal);
+    vis.append("text")
+    .attr("text-anchor", "end")
+    .attr("transform", "translate("+ (WIDTH) +","+(HEIGHT-MARGINS.bottom-5)+")")
+    .style("font-size", "20px")
+    .text("Time");
+    vis.append("text")
+    .attr("text-anchor", "middle")
+    .attr("transform", "translate("+ (WIDTH/2) +","+MARGINS.top+")")
+    .style("font-size", "30px")
+    .text(titleText);
+    if(data.length===0) {
+    	vis.append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate("+ (WIDTH/2) +","+(HEIGHT/2)+")")
+        .style("font-size", "30px")
+        .text("No Data Available");
+    }
+    var color;
     dataGroup.forEach(function(d,i) {
                         vis.append('svg:path')
                         .attr('d', lineGen(d.values))
                         .attr('stroke', function(){
-                        return "hsl(" + i*(360/dataGroup.length) + ",100%,50%)";
+                        	color="hsl(" + i*(360/dataGroup.length) + ",100%,50%)";
+                        	return color;
                         })
                         .attr('stroke-width', 1)
                         .attr('id', 'line_'+d.key)
                         .attr('fill', 'none')
                         .attr('opacity', 0.5);
                         vis.append("text")
+                        	.attr("text-anchor", "middle")
                             .attr("x", (lSpace/2)+i*lSpace)
                             .attr("y", HEIGHT)
-                            .style("fill", "black")
+                            .style("font-size", "25px")
+                            .style("stroke", "grey")
+                            .style("fill", color)
                             .attr("class","legend")
                             .on('click',function(){
                                 var active   = d.active ? false : true;
@@ -125,19 +174,6 @@ $(document).ready(function () {
         }
     }
 
-    function toDate(unix_tm) {
-        var a = new Date(unix_tm * 1000);
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        var year = a.getFullYear();
-        var month = months[a.getMonth()];
-        var day = a.getDate();
-        var hour = a.getHours();
-        var min = a.getMinutes();
-        var sec = a.getSeconds();
-        var time = month + ' ' + day + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-        return time;
-    }
-
   function getDataAccel() {
     console.log("getting data");
     //  Get URL, parse to get device ID
@@ -148,9 +184,9 @@ $(document).ready(function () {
     d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
     var newData=[];
     json.forEach(function(d){
-    newData.push({"device_id":"X","accelTime":d.accelTime,"accel":d.xAccel});
-    newData.push({"device_id":"Y","accelTime":d.accelTime,"accel":d.yAccel});
-    newData.push({"device_id":"Z","accelTime":d.accelTime,"accel":d.zAccel});
+    newData.push({"device_id":"X","accelTime":d.accelTime,"accel":d.xAccel,"accelDate":new Date(d.accelTime*1000)});
+    newData.push({"device_id":"Y","accelTime":d.accelTime,"accel":d.yAccel,"accelDate":new Date(d.accelTime*1000)});
+    newData.push({"device_id":"Z","accelTime":d.accelTime,"accel":d.zAccel,"accelDate":new Date(d.accelTime*1000)});
     });
     updateGraph(newData);
     console.log(newData);});
