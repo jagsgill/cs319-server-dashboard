@@ -8,6 +8,9 @@ from django.shortcuts import render_to_response
 from django.core.context_processors import csrf
 
 from models import DataPoint
+from cs319.data_manager import DataManager
+
+dm = DataManager()
 
 # date  range //PO
 def get_device_by_time_range(request, start_time, end_time):
@@ -19,15 +22,8 @@ def get_device_by_time_range(request, start_time, end_time):
 # dashboard (device listing) page
 def get_device_ids(request):
     if request.user.is_authenticated():
-        device_list = DataPoint.objects.values('device_id').order_by('device_id')
-        distinct_device_list = []
-        distinct_device_count = 0
-        for d in device_list:
-            if d not in distinct_device_list:
-                distinct_device_list.append(d)
-                distinct_device_count += 1
-        return render(request, 'dashboard.html', {'device_list': distinct_device_list,
-                                                  'distinct_device_count': distinct_device_count})
+        return render(request, 'dashboard.html', {'device_list': dm.get_dist_dev_list(),
+                                                  'distinct_device_count': dm.get_dist_dev_count()})
     else:
         c = {}
         c.update(csrf(request))
