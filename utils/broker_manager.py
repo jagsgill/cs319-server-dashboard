@@ -219,10 +219,7 @@ def combined_data_handler(client_id, content):
             accelTime = accelTime,
             xAccel = x,
             yAccel = y,
-            zAccel = z,
-            gpsTime = gpsTime,
-            lat = lat,
-            long = long
+            zAccel = z
         )
 
         # datapoint.save()
@@ -291,13 +288,15 @@ def client_count_handler(status, id):
         else:
             print("Changing count, device disconnected: %s \n" % id)
         # removing a device
-            offlineCountObj = OfflineDevice.objects.get()
+            offlineCountObj = OfflineDeviceCount.objects.get()
             setattr(offlineCountObj, 'count', OfflineDevice.objects.count())
             offlineCountObj.save()
-    except ObjectDoesNotExist:
+    except TotalDeviceCount.DoesNotExist:
         # print("First run: no TotalDeviceCount and ConnectedDeviceCount objects in DB. Creating them...")
         TotalDeviceCount(count = Device.objects.count()).save()
+    except ConnectedDeviceCount.DoesNotExist:
         ConnectedDeviceCount(count = ConnectedDevice.objects.count()).save()
+    except OfflineDeviceCount.DoesNotExist:
         OfflineDeviceCount(count = OfflineDevice.objects.count()).save()
     except MultipleObjectsReturned:
         # print("Warning: expected 1 ConnectedDeviceCount object in DB but found multiple... updating all")
