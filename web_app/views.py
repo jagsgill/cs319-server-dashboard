@@ -4,16 +4,7 @@ import time
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-from django.shortcuts import render_to_response
-from django.core.context_processors import csrf
 from models import *
-
-
-from cs319.data_manager import DataManager
-dm = DataManager()
-
 
 
 # date  range //PO
@@ -25,36 +16,26 @@ def get_device_by_time_range(request, start_time, end_time):
 # make query only get unique IDs //PO
 # dashboard (device listing) page
 def get_device_ids(request):
-    if request.user.is_authenticated():
-        distinct_device_list = Device.objects.all()
-        online_device_list = ConnectedDevice.objects.all()
-        offline_device_list = OfflineDevice.objects.all()
+    distinct_device_list = Device.objects.all()
+    online_device_list = ConnectedDevice.objects.all()
+    offline_device_list = OfflineDevice.objects.all()
 
-        distinct_device_count = TotalDeviceCount.objects.all()
-        online_device_count = ConnectedDeviceCount.objects.all()
-        offline_devices_count = OfflineDeviceCount.objects.all()
-        return render(request, 'dashboard.html', {'distinct_device_list': distinct_device_list,
-                                                  'online_device_list': online_device_list,
-                                                  'offline_device_list': offline_device_list,
-                                                  'distinct_device_count': distinct_device_count,
-                                                  'online_device_count': online_device_count,
-                                                  'offline_devices_count': offline_devices_count})
-
-    else:
-        c = {}
-        c.update(csrf(request))
-        return render_to_response('logout.html', c)
+    distinct_device_count = TotalDeviceCount.objects.all().values('count')[0].get('count')
+    online_device_count = ConnectedDeviceCount.objects.all().values('count')[0].get('count')
+    offline_devices_count = OfflineDeviceCount.objects.all().values('count')[0].get('count')
+    return render(request, 'dashboard.html', {'distinct_device_list': distinct_device_list,
+                                              'online_device_list': online_device_list,
+                                              'offline_device_list': offline_device_list,
+                                              'distinct_device_count': distinct_device_count,
+                                              'online_device_count': online_device_count,
+                                              'offline_devices_count': offline_devices_count})
 
 
 # dynamic analysis page for a device
 def analyze_device(request, watch_id):
-    if request.user.is_authenticated():
-        device_data = AccelPoint.objects.filter(device_id=watch_id)
-        return render(request, 'analysis.html', {'device_data': device_data})
-    else:
-        c = {}
-        c.update(csrf(request))
-        return render_to_response('logout.html', c)
+    device_data = AccelPoint.objects.filter(device_id=watch_id)
+    return render(request, 'analysis.html', {'device_data': device_data})
+
 
 
 # dynamic API for D3 graph

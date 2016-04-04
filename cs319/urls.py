@@ -9,13 +9,13 @@ from . import views
 
 
 urlpatterns = [
-
-    url(r'^$', views.login, name='login'), #PO
-    url(r'^dashboard$', views.authview, name='dashboard'), #PO
-    url(r'^logout$', views.logout, name='logout'), #PO
+    url(r'^$', views.checklogin, name='checklogin'), #PO
+    url(r'^dologin$', views.authview, name='dologin'), #PO
+    url(r'^logout$', views.dologout, name='dologout'), #PO
+    # url(r'^loggedin$', views.loggedin, name='loggedin'), #PO
     url(r'^invalidlogin$', views.invalidlogin, name='invalidlogin'), #PO
 
-    url(r'^dashboard/', include('web_app.urls')),
-    url(r'^admin/', admin.site.urls),
+    url(r'^dashboard/$', include('web_app.urls')),
+    url(r'^admin/$', admin.site.urls),
     static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 ]
