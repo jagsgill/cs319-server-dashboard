@@ -23,18 +23,29 @@ class DataPoint(models.Model):
     lat = models.FloatField(null=True)
     long = models.FloatField(null=True)
 
-class ConnectedCount(models.Model):
+
+
+class TotalDeviceCount(models.Model):
     count = models.IntegerField()
 
 
-class ConnectedDeviceList(models.Model):
-    device_list = models.CharField()
-
-
-class ClientCount(models.Model):
+class ConnectedDeviceCount(models.Model):
     count = models.IntegerField()
+
+
+class OfflineDeviceCount(models.Model):
+    count = models.IntegerField()
+
+
+class Device(models.Model):
+    _id = models.CharField(primary_key=True)
 
 
 class ConnectedDevice(models.Model):
     _id = models.CharField(primary_key=True)
+
+
+class OfflineDevice(models.Model):
+    _id = models.CharField(primary_key=True)
+
 
