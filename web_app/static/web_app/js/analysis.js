@@ -185,7 +185,7 @@ $(document).ready(function () {
     if(!$("#liveUpdate").is(':checked')) {
     	$("#dateError").hide();
     	var dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/\d{4}$/
-    	if(dateRegex.test($("#startDate").val()) && dateRegex.test($("#endDate").val())){
+    	if(dateRegex.test($("#startDate").val()) && dateRegex.test($("#endDate").val()) && $("#endDate").val()>$("#startDate").val()){
 	    	var start = (new Date($("#startDate").val()).getTime()).toFixed(0).toString();
 	    	var end = (new Date($("#endDate").val()).getTime()).toFixed(0).toString();
 	    	url = "http://localhost:8000/dashboard/live-with-date/" + id + "/?start="+start+"&end="+end;
@@ -217,7 +217,7 @@ $(document).ready(function () {
     if(!$("#liveUpdate").is(':checked')) {
     	$("#dateError").hide();
     	var dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/\d{4}$/
-    	if(dateRegex.test($("#startDate").val()) && dateRegex.test($("#endDate").val())){
+    	if(dateRegex.test($("#startDate").val()) && dateRegex.test($("#endDate").val()) && $("#endDate").val()>$("#startDate").val()){
 	    	var start = (new Date($("#startDate").val()).getTime()).toFixed(0).toString();
 	    	var end = (new Date($("#endDate").val()).getTime()).toFixed(0).toString();
 	    	url = "http://localhost:8000/dashboard/live-with-date/" + id + "/?start="+start+"&end="+end;
