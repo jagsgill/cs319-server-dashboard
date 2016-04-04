@@ -29,18 +29,30 @@
     <div class="splash-image">
         <div class="splash-content">
             <div class="jumbotron">
+                <div class="contents">
                 {% block content %}
                     {% if form.errors %}
                         <p class="error">Not a valid user name or password</p>
                     {% endif %}
-                    <form action="/dashboard" method="post">{% csrf_token %}
-                        <label for="username">User name:</label>
-                        <input type="text" name="username" value="" id="username"> <br>
-                        <label for="password">Password:</label>
-                        <input type="password" name="password" value="" id="password"><br>
-                        <input type="submit" value="login" />
+                    <form action="/dologin" method="post">{% csrf_token %}
+                        <div class="login-label">
+                            <label for="username">User name:</label>
+                        </div>
+                        <div class="login-input-data">
+                            <input type="text" name="username" value="" id="username"> <br>
+                        </div>
+                        <div class="login-label">
+                            <label for="password">Password:</label>
+                        </div>
+                        <div class="login-input-data">
+                            <input type="password" name="password" value="" id="password"><br>
+                        </div>
+                        <div class="login-input-button">
+                            <input type="submit" value="login" />
+                        </div>
                     </form>
                 {% endblock %}
+                    </div>
             </div>
         </div>
     </div>

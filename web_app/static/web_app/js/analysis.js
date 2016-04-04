@@ -4,6 +4,7 @@ $(document).ready(function () {
   $("#endDate").datepicker();
   $(".chart").append("<svg id='lineChart' width="+ $(window).width()/1.5 +" height='600'></svg>");
   $("#liveUpdate").prop('checked',true);
+  $("#dateError").hide();
   generateGraph();
   
   var interval;
@@ -15,6 +16,7 @@ $(document).ready(function () {
   });
   
   $('#liveUpdate').change(function() {
+	$("#dateError").hide();
 	generateGraph();
   });
   
@@ -179,9 +181,23 @@ $(document).ready(function () {
     //  Get URL, parse to get device ID
     var url = window.location.href;
     var regex =/[^/]*$/
-    url = url.match(regex);
-    console.log("url: http://localhost:8000/dashboard/live/" + url);
-    d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
+    var id = url.match(regex);
+    if(!$("#liveUpdate").is(':checked')) {
+    	$("#dateError").hide();
+    	var dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/\d{4}$/
+    	if(dateRegex.test($("#startDate").val()) && dateRegex.test($("#endDate").val()) && $("#endDate").val()>$("#startDate").val()){
+	    	var start = (new Date($("#startDate").val()).getTime()).toFixed(0).toString();
+	    	var end = (new Date($("#endDate").val()).getTime()).toFixed(0).toString();
+	    	url = "http://localhost:8000/dashboard/live-with-date/" + id + "/?start="+start+"&end="+end;
+    	} else {
+    		$("#dateError").show();
+    		return;
+    	}
+    } else {
+    	url = "http://localhost:8000/dashboard/live/" + id;
+    }
+    console.log(url);
+    d3.json(url, function(error, json){
     var newData=[];
     json.forEach(function(d){
     newData.push({"device_id":"X","accelTime":d.accelTime,"accel":d.xAccel,"accelDate":new Date(d.accelTime*1000)});
@@ -197,15 +213,33 @@ $(document).ready(function () {
     //  Get URL, parse to get device ID
     var url = window.location.href;
     var regex =/[^/]*$/
-    url = url.match(regex)
-    console.log("url: http://localhost:8000/dashboard/live/" + url);
-    d3.json("http://localhost:8000/dashboard/live/" + url, function(error, json){
+    var id = url.match(regex);
+    if(!$("#liveUpdate").is(':checked')) {
+    	$("#dateError").hide();
+    	var dateRegex = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/\d{4}$/
+    	if(dateRegex.test($("#startDate").val()) && dateRegex.test($("#endDate").val()) && $("#endDate").val()>$("#startDate").val()){
+	    	var start = (new Date($("#startDate").val()).getTime()).toFixed(0).toString();
+	    	var end = (new Date($("#endDate").val()).getTime()).toFixed(0).toString();
+	    	url = "http://localhost:8000/dashboard/live-with-date/" + id + "/?start="+start+"&end="+end;
+    	} else {
+    		$("#dateError").show();
+    		return;
+    	}
+    } else {
+    	url = "http://localhost:8000/dashboard/live/" + id;
+    }
+    console.log(url);
+    d3.json(url, function(error, json){
     var newData=[];
     json.forEach(function(d){
     newData.push({"device_id":"Battery_Life","accelTime":d.accelTime,"accel":d.battery_level*100});
     });
     updateGraph(newData);
     console.log(newData);});
+  }
+  
+  function dateToUnix(){
+	  
   }
 
 });

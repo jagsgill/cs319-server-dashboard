@@ -125,9 +125,12 @@ def on_connect(client, userdata, rc):
 def on_message(client, userdata, msg):
     # print ('Topic: ', msg.topic, ' Message: ', str(msg.payload))
 
-    # watches will send data to topics under   sensors/<client id>
-    # e.g. watch with id 999 sends gps data to sensors/999/gps
-    # and we want to find the ending "tag" e.g. gps
+    # watches will send data to topics under   client/watch/<client id>/combined
+    # e.g. watch with id 999 sends gps data to client/watch/999/gps
+    # and we want to find the ending "tag" e.g. gps and topic
+
+    topic_parts = msg.topic.split('/')
+    client_id = topic_parts[2]
 
     tag = ''
     for t in sensor_data_tags:  # tags is a constant defined in User Variables section
@@ -162,21 +165,45 @@ def on_message(client, userdata, msg):
     }.get(tag)
 
     # call the correct handler for the msg type
-    handler(msg.payload)
+    handler(client_id, msg.payload)
 
     return
 
 # ----------- Message Handlers ----------- #
 
 
-def combined_data_handler(content):
+def combined_data_handler(client_id, content):
     print("Received data: %s" % str(content))
+
+    data = content.split()  # split on newlines
+
     return
-    messages = [x.strip() for x in str(content).split('$')]
+
+    # handler = None
+    #
+    # for msg in data:
+    #     if 'Acceleration' in msg:
+    #         print("Passing data to accel handler")
+    #         handler = accel_msg_handler
+    #         continue
+    #     elif 'Location' in msg:
+    #         print("Passing data to location handler")
+    #         handler = location_msg_handler()
+    #         continue
+    #     elif 'Battery Level' in msg:
+    #         print("Passing data to battery handler")
+    #         handler = battery_msg_handler
+    #         continue
+    #     else:
+    #         handler(msg)
+
+    messages = [x for x in str(messages).split('$')]
     messages = messages[:-1]  # remove extra empty string at end
 
+    print("accel msgs2: %s\n" % messages)
+
     for content in messages:
-        arr = [x.strip() for x in content.split(',')]
+        arr = [x for x in content.split(',')]
 
         devId = str(arr[0])
         accelTime = str(arr[1])
@@ -187,19 +214,64 @@ def combined_data_handler(content):
         lat = float(arr[6])
         long = float(arr[7])
 
-        datapoint = DataPoint(
+        datapoint = AccelPoint(
             deviceId = devId,
             accelTime = accelTime,
             xAccel = x,
             yAccel = y,
-            zAccel = z,
-            gpsTime = gpsTime,
-            lat = lat,
-            long = long
+            zAccel = z
         )
 
-        datapoint.save()
+        # datapoint.save()
     return
+
+
+    return
+
+# def accel_msg_handler(client_id, messages):
+#
+#     print("accel msgs1: %s\n" % messages)
+#     messages = [x for x in str(messages).split('$')]
+#     messages = messages[:-1]  # remove extra empty string at end
+#
+#     print("accel msgs2: %s\n" % messages)
+#
+#     for content in messages:
+#         arr = [x for x in content.split(',')]
+#
+#         devId = str(arr[0])
+#         accelTime = str(arr[1])
+#         x = float(arr[2])
+#         y = float(arr[3])
+#         z = float(arr[4])
+#         gpsTime = int(arr[5])
+#         lat = float(arr[6])
+#         long = float(arr[7])
+#
+#         datapoint = DataPoint(
+#             deviceId = devId,
+#             accelTime = accelTime,
+#             xAccel = x,
+#             yAccel = y,
+#             zAccel = z,
+#             gpsTime = gpsTime,
+#             lat = lat,
+#             long = long
+#         )
+#
+#         # datapoint.save()
+#     return
+#
+#
+# def location_msg_handler(content):
+#     # TODO
+#     print("Location data: %s" % str(content))
+#     return
+#
+#
+# def battery_msg_handler(content):
+#     print("Battery data: %s" % str(content))
+#     return
 
 
 def client_count_handler(status, id):
@@ -216,13 +288,15 @@ def client_count_handler(status, id):
         else:
             print("Changing count, device disconnected: %s \n" % id)
         # removing a device
-            offlineCountObj = OfflineDevice.objects.get()
+            offlineCountObj = OfflineDeviceCount.objects.get()
             setattr(offlineCountObj, 'count', OfflineDevice.objects.count())
             offlineCountObj.save()
-    except ObjectDoesNotExist:
+    except TotalDeviceCount.DoesNotExist:
         # print("First run: no TotalDeviceCount and ConnectedDeviceCount objects in DB. Creating them...")
         TotalDeviceCount(count = Device.objects.count()).save()
+    except ConnectedDeviceCount.DoesNotExist:
         ConnectedDeviceCount(count = ConnectedDevice.objects.count()).save()
+    except OfflineDeviceCount.DoesNotExist:
         OfflineDeviceCount(count = OfflineDevice.objects.count()).save()
     except MultipleObjectsReturned:
         # print("Warning: expected 1 ConnectedDeviceCount object in DB but found multiple... updating all")
@@ -246,7 +320,7 @@ def client_count_handler(status, id):
     return
 
 
-def client_status_handler(content):
+def client_status_handler(client_id, content):
     # expect content to be a string of whitespace separated values
     # update connected device lists then update the connected device count
     data = content.split()

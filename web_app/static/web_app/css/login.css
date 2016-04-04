@@ -19,10 +19,32 @@
     color: black;
 }
 
-label{
-    padding-left: 8cm;
-    float: left;
-    clear: left;
+.jumbotron{
+    height: 240px;
 }
 
+.login-label{
+    position: relative;
+    text-align: left;
+    float: left;
+    clear: left;
+    margin-left: 130px;
+    margin-top: 10px;
+}
+.login-input-data{
+    position: relative;
+    text-align: left;
+    float: left;
+    clear: left;
+    margin-left: 130px;
+}
 
+.login-input-button{
+    position: relative;
+    text-align: left;
+    float: left;
+    clear: left;
+    margin-left: 130px;
+    margin-top: 10px;
+
+}

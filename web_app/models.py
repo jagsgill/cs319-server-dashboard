@@ -5,7 +5,7 @@ from django.db import models
 # Create your models here.
 
 
-class DataPoint(models.Model):
+class AccelPoint(models.Model):
     # We do not use device_id as a primary key because the Device class is used
     # to store currently connected devices. When those are removed from the DB on
     # disconnect, the default behavior would be to remove all DataPoint documents
@@ -16,12 +16,20 @@ class DataPoint(models.Model):
     yAccel = models.FloatField()
     zAccel = models.FloatField()
 
-    battery_level = models.FloatField(null=True)
-    upload_rate = models.FloatField(null=True)
 
-    gpsTime = models.IntegerField(null=True)
-    lat = models.FloatField(null=True)
-    long = models.FloatField(null=True)
+class BatteryUploadRatePoint(models.Model):
+    device_id = models.CharField()
+    timestamp = models.IntegerField()
+    battery_level = models.FloatField()
+    upload_rate = models.FloatField()
+
+
+class LocationPoint(models.Model):
+    device_id = models.CharField()
+    gpsTime = models.IntegerField()
+    lat = models.FloatField()
+    long = models.FloatField()
+
 
 
 class TotalDeviceCount(models.Model):
