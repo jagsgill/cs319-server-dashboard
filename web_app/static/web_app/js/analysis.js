@@ -188,13 +188,13 @@ $(document).ready(function () {
     	if(dateRegex.test($("#startDate").val()) && dateRegex.test($("#endDate").val()) && $("#endDate").val()>$("#startDate").val()){
 	    	var start = (new Date($("#startDate").val()).getTime()).toFixed(0).toString();
 	    	var end = (new Date($("#endDate").val()).getTime()).toFixed(0).toString();
-	    	url = "http://localhost:8000/dashboard/build_accel_api-with-date/" + id + "/?start="+start+"&end="+end;
+	    	url = "http://localhost:8000/dashboard/live-accel-date/" + id + "/?start="+start+"&end="+end;
     	} else {
     		$("#dateError").show();
     		return;
     	}
     } else {
-    	url = "http://localhost:8000/dashboard/build_accel_api/" + id;
+    	url = "http://localhost:8000/dashboard/live-accel/" + id;
     }
     console.log(url);
     d3.json(url, function(error, json){
@@ -220,13 +220,13 @@ $(document).ready(function () {
     	if(dateRegex.test($("#startDate").val()) && dateRegex.test($("#endDate").val()) && $("#endDate").val()>$("#startDate").val()){
 	    	var start = (new Date($("#startDate").val()).getTime()).toFixed(0).toString();
 	    	var end = (new Date($("#endDate").val()).getTime()).toFixed(0).toString();
-	    	url = "http://localhost:8000/dashboard/build_accel_api-with-date/" + id + "/?start="+start+"&end="+end;
+	    	url = "http://localhost:8000/dashboard/live-battery-date/" + id + "/?start="+start+"&end="+end;
     	} else {
     		$("#dateError").show();
     		return;
     	}
     } else {
-    	url = "http://localhost:8000/dashboard/build_accel_api/" + id;
+    	url = "http://localhost:8000/dashboard/live-battery/" + id;
     }
     console.log(url);
     d3.json(url, function(error, json){
