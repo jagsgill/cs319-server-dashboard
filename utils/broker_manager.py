@@ -49,7 +49,7 @@ clientCert = sslDir+"/client.crt"
 clientKey = sslDir+"/client.key"
 sslFiles = [caCert, clientCert, clientKey]
 
-sensor_data_tags = ['accel', 'gps', 'combined', 'batteryanduploadrate', 'status']
+client_data_tags = ['combined', 'status']
 
 
 # ----------- Encrypted connection set-up ----------- #
@@ -114,9 +114,6 @@ sslSetupClient.on_message = message_for_ssl_setup
 # reconnect then subscriptions will be renewed.
 def on_connect(client, userdata, rc):
     print(" *** Connected to broker: result code %s *** \n" % str(rc))
-    # client.subscribe(topicBrokerConnectedDeviceCount)
-    # client.subscribe(topicBrokerSubscribe)
-    # client.subscribe(topicBrokerUnsubscribe)
     client.subscribe(clientsTopic)
     return
 
@@ -133,35 +130,23 @@ def on_message(client, userdata, msg):
     client_id = topic_parts[2]
 
     tag = ''
-    for t in sensor_data_tags:  # tags is a constant defined in User Variables section
+    for t in client_data_tags:  # tags is a constant defined in User Variables section
         if msg.topic.endswith(t):
             tag = t
             break
 
-    # if tag is still empty, either it's an unknown msg type or a broker topic (.e.g $SYS/...)
-    broker_tags = {
-            # topicBrokerConnectedDeviceCount   : "clientcount",
-            # topicBrokerSubscribe     : "clientsubscribe",
-            # topicBrokerUnsubscribe   : "clientunsubscribe",
-    }
-
-    if not tag and msg.topic in broker_tags:
-        tag = broker_tags.get(msg.topic)
-    elif not tag:
+    if not tag:
         # otherwise output a warning on stdout
         print(" **** WARNING: Unhandled Message Format **** ")
         print("       Topic: %s " % msg.topic)
         print("       Message: %s " % msg.payload)
-        print("       Allowed types: %s " % sensor_data_tags)
+        print("       Allowed types: %s " % client_data_tags)
         return
 
     handler = {
         # tag at end of topic : function to handle this type of msg
         "combined"          : combined_data_handler,
-        "clientcount"       : client_count_handler,
         "status"            : client_status_handler
-        # "clientsubscribe"   : client_subscribe_to_broker_handler,
-        # "clientunsubscribe" : client_unsubscribe_from_broker_handler
     }.get(tag)
 
     # call the correct handler for the msg type
@@ -173,105 +158,75 @@ def on_message(client, userdata, msg):
 
 
 def combined_data_handler(client_id, content):
-    print("Received data: %s" % str(content))
+    print("Received data: %s -> %s" % (client_id, str(content)))
 
     data = content.split()  # split on newlines
+    handler = None
 
+    for msg in data:
+        if 'Acceleration' in msg:
+            handler = accel_msg_handler
+            continue
+        elif 'Location' in msg:
+            handler = location_msg_handler()
+            continue
+        elif 'Battery_Level' in msg:
+            handler = battery_msg_handler
+            continue
+        else:
+            msg = [x for x in str(msg).split('$')][:-1]  # remove empty string at end
+            handler(client_id, msg)
     return
 
-    # handler = None
-    #
-    # for msg in data:
-    #     if 'Acceleration' in msg:
-    #         print("Passing data to accel handler")
-    #         handler = accel_msg_handler
-    #         continue
-    #     elif 'Location' in msg:
-    #         print("Passing data to location handler")
-    #         handler = location_msg_handler()
-    #         continue
-    #     elif 'Battery Level' in msg:
-    #         print("Passing data to battery handler")
-    #         handler = battery_msg_handler
-    #         continue
-    #     else:
-    #         handler(msg)
 
-    messages = [x for x in str(messages).split('$')]
-    messages = messages[:-1]  # remove extra empty string at end
+def accel_msg_handler(client_id, messages):
+    print("In accel handler")
 
-    print("accel msgs2: %s\n" % messages)
-
-    for content in messages:
-        arr = [x for x in content.split(',')]
-
-        devId = str(arr[0])
-        accelTime = str(arr[1])
-        x = float(arr[2])
-        y = float(arr[3])
-        z = float(arr[4])
-        gpsTime = int(arr[5])
-        lat = float(arr[6])
-        long = float(arr[7])
+    for msg in messages:
+        arr = [x for x in msg.split(',')]
 
         datapoint = AccelPoint(
-            deviceId = devId,
-            accelTime = accelTime,
-            xAccel = x,
-            yAccel = y,
-            zAccel = z
+            device_id = client_id,
+            accelTime = str(arr[0]),
+            xAccel = float(arr[1]),
+            yAccel = float(arr[2]),
+            zAccel = float(arr[3])
         )
-
-        # datapoint.save()
+        datapoint.save()
     return
 
 
+def location_msg_handler(client_id, messages):
+    print("In gps handler")
+
+
+    for msg in messages:
+        arr = [x for x in msg.split(',')]
+
+        datapoint = LocationPoint(
+            device_id = client_id,
+            gpsTime = str(arr[0]),
+            lat = float(arr[1]),
+            long = float(arr[2])
+        )
+        datapoint.save()
     return
 
-# def accel_msg_handler(client_id, messages):
-#
-#     print("accel msgs1: %s\n" % messages)
-#     messages = [x for x in str(messages).split('$')]
-#     messages = messages[:-1]  # remove extra empty string at end
-#
-#     print("accel msgs2: %s\n" % messages)
-#
-#     for content in messages:
-#         arr = [x for x in content.split(',')]
-#
-#         devId = str(arr[0])
-#         accelTime = str(arr[1])
-#         x = float(arr[2])
-#         y = float(arr[3])
-#         z = float(arr[4])
-#         gpsTime = int(arr[5])
-#         lat = float(arr[6])
-#         long = float(arr[7])
-#
-#         datapoint = DataPoint(
-#             deviceId = devId,
-#             accelTime = accelTime,
-#             xAccel = x,
-#             yAccel = y,
-#             zAccel = z,
-#             gpsTime = gpsTime,
-#             lat = lat,
-#             long = long
-#         )
-#
-#         # datapoint.save()
-#     return
-#
-#
-# def location_msg_handler(content):
-#     # TODO
-#     print("Location data: %s" % str(content))
-#     return
-#
-#
-# def battery_msg_handler(content):
-#     print("Battery data: %s" % str(content))
-#     return
+
+def battery_msg_handler(client_id, messages):
+    print("In battery handler")
+
+    for msg in messages:
+        arr = [x for x in msg.split(',')]
+
+        datapoint = BatteryUploadRatePoint(
+            device_id = client_id,
+            timestamp = str(arr[0]),
+            battery_level = float(arr[1]),
+            upload_rate = 1.0       #  TODO float(arr[2])
+        )
+        datapoint.save()
+    return
 
 
 def client_count_handler(status, id):
