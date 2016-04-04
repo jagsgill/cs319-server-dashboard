@@ -23,7 +23,6 @@ class DataPoint(models.Model):
     lat = models.FloatField(null=True)
     long = models.FloatField(null=True)
 
-
 class ConnectedCount(models.Model):
     count = models.IntegerField()
 

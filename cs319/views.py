@@ -45,11 +45,6 @@ def authview(request):
     else:
         return render_to_response('invalidlogin.html', {'full_name': request.user.username})
 
-def loggedin(request):
-    if request.user.is_authenticated():
-        return render_to_response('loggedin.html', {'full_name': request.user.username})
-    else:
-        return render_to_response('invalidlogin.html', {'full_name': request.user.username})
 
 def invalidlogin(request):
     return render_to_response('invalidlogin.html')
