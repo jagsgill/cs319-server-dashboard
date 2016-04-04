@@ -18,6 +18,10 @@ $(document).ready(function () {
 	generateGraph();
   });
   
+  $('#sensorType').change(function() {
+	generateGraph();
+  });
+  
   	function generateGraph() {
   		if($("#sensorType").val() == "Accelerometer") {
   			titleText = "Acceleration over Time";
@@ -37,6 +41,7 @@ $(document).ready(function () {
   	    if($("#liveUpdate").is(':checked')) {
   	    	$("#sDate").hide();
   	    	$("#eDate").hide();
+  	    	$("#generateGraph").hide();
   	        if(interval) {
   	            clearInterval(interval);
   	        }
@@ -44,6 +49,7 @@ $(document).ready(function () {
   	    } else {
   	    	$("#sDate").show();
   	    	$("#eDate").show();
+  	    	$("#generateGraph").show();
   	        if(interval) {
   	            clearInterval(interval);
   	        }
