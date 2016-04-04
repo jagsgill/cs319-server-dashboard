@@ -53,7 +53,7 @@ def analyze_device(request, watch_id):
 
 # dynamic API for D3 graph
 def live(request, watch_id):
-    seconds_partition = 4000
+    seconds_partition = 4000 
     data = DataPoint.objects.filter(device_id=watch_id, accelTime__gt=int(time.time())-seconds_partition).\
         values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel', 'battery_level')
     json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
