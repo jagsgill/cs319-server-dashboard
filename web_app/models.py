@@ -31,18 +31,6 @@ class LocationPoint(models.Model):
     long = models.FloatField()
 
 
-class TotalDeviceCount(models.Model):
-    count = models.IntegerField()
-
-
-class ConnectedDeviceCount(models.Model):
-    count = models.IntegerField()
-
-
-class OfflineDeviceCount(models.Model):
-    count = models.IntegerField()
-
-
 class Device(models.Model):
     device_id = models.CharField(primary_key=True)
 

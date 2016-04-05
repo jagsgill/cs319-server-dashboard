@@ -23,9 +23,9 @@ def build_dashboard(request):
     online_device_list = ConnectedDevice.objects.all().values('device_id')
     offline_device_list = OfflineDevice.objects.all().values('device_id')
 
-    distinct_device_count = TotalDeviceCount.objects.all().values('count')#[0].get('count')
-    online_device_count = ConnectedDeviceCount.objects.all().values('count')#[0].get('count')
-    offline_devices_count = OfflineDeviceCount.objects.all().values('count')#[0].get('count')
+    distinct_device_count = Device.objects.all().count()
+    online_device_count = ConnectedDevice.objects.all().count()
+    offline_devices_count = OfflineDevice.objects.all().count()
     return render(request, 'dashboard.html', {'distinct_device_list': distinct_device_list,
                                               'online_device_list': online_device_list,
                                               'offline_device_list': offline_device_list,

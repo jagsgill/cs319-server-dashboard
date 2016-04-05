@@ -229,52 +229,6 @@ def battery_msg_handler(client_id, messages):
     return
 
 
-def client_count_handler(status, id):
-    try:
-        if status == '1':
-        # new or existing device connected
-            print("Changing count, device connected: %s \n" % id)
-            totalCountObj = TotalDeviceCount.objects.get()
-            connectedCountObj = ConnectedDeviceCount.objects.get()
-            setattr(totalCountObj, 'count', TotalDeviceCount.objects.count())
-            setattr(connectedCountObj, 'count', ConnectedDevice.objects.count())
-            totalCountObj.save()
-            connectedCountObj.save()
-        else:
-            print("Changing count, device disconnected: %s \n" % id)
-        # removing a device
-            offlineCountObj = OfflineDeviceCount.objects.get()
-            setattr(offlineCountObj, 'count', OfflineDevice.objects.count())
-            offlineCountObj.save()
-    except TotalDeviceCount.DoesNotExist:
-        # print("First run: no TotalDeviceCount and ConnectedDeviceCount objects in DB. Creating them...")
-        TotalDeviceCount(count = Device.objects.count()).save()
-    except ConnectedDeviceCount.DoesNotExist:
-        ConnectedDeviceCount(count = ConnectedDevice.objects.count()).save()
-    except OfflineDeviceCount.DoesNotExist:
-        OfflineDeviceCount(count = OfflineDevice.objects.count()).save()
-    except MultipleObjectsReturned:
-        # print("Warning: expected 1 ConnectedDeviceCount object in DB but found multiple... updating all")
-        pass
-
-
-    print("Count check: %s connected, %s disconnected, %s total devices" % (str(ConnectedDevice.objects.count()), str(OfflineDevice.objects.count()), str(Device.objects.count())))
-
-    print("All devices:")
-    for obj in Device.objects.all():
-        print("    %s\n" % getattr(obj, 'device_id'))
-
-    print("Connected devices:")
-    for obj in ConnectedDevice.objects.all():
-        print("    %s\n" % getattr(obj, 'device_id'))
-
-    print("Offline devices:")
-    for obj in OfflineDevice.objects.all():
-        print("    %s\n" % getattr(obj, 'device_id'))
-
-    return
-
-
 def client_status_handler(client_id, content):
     # expect content to be a string of whitespace separated values
     # update connected device lists then update the connected device count
@@ -282,8 +236,8 @@ def client_status_handler(client_id, content):
     if data[0] == '0':
         client_unsubscribe_from_broker_handler(data[1])
     else:
+        print("****", data[1])
         client_subscribe_to_broker_handler(data[1])
-    client_count_handler(data[0], data[1])
     return
 
 
