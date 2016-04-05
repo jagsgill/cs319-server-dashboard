@@ -19,9 +19,9 @@ def get_device_by_time_range(request, start_time, end_time):
 # dashboard (device listing) page
 # @login_required(login_url="/login")
 def build_dashboard(request):
-    distinct_device_list = Device.objects.all()
-    online_device_list = ConnectedDevice.objects.all()
-    offline_device_list = OfflineDevice.objects.all()
+    distinct_device_list = Device.objects.all().values('device_id')
+    online_device_list = ConnectedDevice.objects.all().values('device_id')
+    offline_device_list = OfflineDevice.objects.all().values('device_id')
 
     distinct_device_count = TotalDeviceCount.objects.all().values('count')#[0].get('count')
     online_device_count = ConnectedDeviceCount.objects.all().values('count')#[0].get('count')
@@ -42,9 +42,12 @@ def analyze_device(request, watch_id):
 
 # dynamic API for D3 graph
 def build_accel_api(request, watch_id):
-    seconds_partition = 4000
-    data = AccelPoint.objects.filter(device_id=watch_id, accelTime__gt=int(time.time())-seconds_partition).\
-        values('device_id', 'accelTime', 'xAccel', 'yAccel', 'zAccel')
+    data = AccelPoint.objects.filter(device_id=watch_id).values('device_id', 'accelTime', 'xAccel', 'yAccel',
+                                                                'zAccel').order_by('-accelTime')
+    if len(data) > 100:
+        data = data[0 : 100]
+    else:
+        pass
     json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
     return HttpResponse(json_str, content_type='application/json; charset=utf8')
 
@@ -62,9 +65,12 @@ def build_accel_api_with_date(request, watch_id):
 
 # dynamic API for D3 graph
 def build_battery_api(request, watch_id):
-    seconds_partition = 4000
-    data = BatteryUploadRatePoint.objects.filter(device_id=watch_id, timestamp__gt=int(time.time())-seconds_partition).\
-        values('device_id', 'timestamp', 'battery_level', 'upload_rate')
+    data = BatteryUploadRatePoint.objects.filter(device_id=watch_id).values('device_id', 'timestamp', 'battery_level',
+                                                                            'upload_rate').order_by('-timestamp')
+    if len(data) > 100:
+        data = data[0 : 100]
+    else:
+        pass
     json_str = json.dumps(list(data), cls=DjangoJSONEncoder)
     return HttpResponse(json_str, content_type='application/json; charset=utf8')
 

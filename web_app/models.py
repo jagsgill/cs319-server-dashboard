@@ -44,14 +44,14 @@ class OfflineDeviceCount(models.Model):
 
 
 class Device(models.Model):
-    _id = models.CharField(primary_key=True)
+    device_id = models.CharField(primary_key=True)
 
 
 class ConnectedDevice(models.Model):
-    _id = models.CharField(primary_key=True)
+    device_id = models.CharField(primary_key=True)
 
 
 class OfflineDevice(models.Model):
-    _id = models.CharField(primary_key=True)
+    device_id = models.CharField(primary_key=True)
 
 

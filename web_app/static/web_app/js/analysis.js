@@ -200,9 +200,9 @@ $(document).ready(function () {
     d3.json(url, function(error, json){
     var newData=[];
     json.forEach(function(d){
-    newData.push({"device_id":"X","accelTime":d.accelTime,"accel":d.xAccel,"accelDate":new Date(d.accelTime*1000)});
-    newData.push({"device_id":"Y","accelTime":d.accelTime,"accel":d.yAccel,"accelDate":new Date(d.accelTime*1000)});
-    newData.push({"device_id":"Z","accelTime":d.accelTime,"accel":d.zAccel,"accelDate":new Date(d.accelTime*1000)});
+    newData.push({"device_id":"X","accelTime":d.accelTime,"accel":d.xAccel,"accelDate":new Date(d.accelTime)});
+    newData.push({"device_id":"Y","accelTime":d.accelTime,"accel":d.yAccel,"accelDate":new Date(d.accelTime)});
+    newData.push({"device_id":"Z","accelTime":d.accelTime,"accel":d.zAccel,"accelDate":new Date(d.accelTime)});
     });
     updateGraph(newData);
     console.log(newData);});
@@ -232,7 +232,7 @@ $(document).ready(function () {
     d3.json(url, function(error, json){
     var newData=[];
     json.forEach(function(d){
-    newData.push({"device_id":"Battery_Life","accelTime":d.accelTime,"accel":d.battery_level*100});
+    newData.push({"device_id":"Battery_Life","accelTime":d.timestamp,"accel":d.battery_level,"accelDate":new Date(d.timestamp)});
     });
     updateGraph(newData);
     console.log(newData);});

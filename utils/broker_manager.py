@@ -262,15 +262,15 @@ def client_count_handler(status, id):
 
     print("All devices:")
     for obj in Device.objects.all():
-        print("    %s\n" % getattr(obj, '_id'))
+        print("    %s\n" % getattr(obj, 'device_id'))
 
     print("Connected devices:")
     for obj in ConnectedDevice.objects.all():
-        print("    %s\n" % getattr(obj, '_id'))
+        print("    %s\n" % getattr(obj, 'device_id'))
 
     print("Offline devices:")
     for obj in OfflineDevice.objects.all():
-        print("    %s\n" % getattr(obj, '_id'))
+        print("    %s\n" % getattr(obj, 'device_id'))
 
     return
 
@@ -291,9 +291,9 @@ def client_subscribe_to_broker_handler(id):
     # content should be unique client id
     print("Client subscribed:   %s" % id)
     try:
-        Device(_id = id).save()
-        ConnectedDevice(_id = id).save()
-        OfflineDevice.objects.get(_id = id).delete()
+        Device(device_id = id).save()
+        ConnectedDevice(device_id = id).save()
+        OfflineDevice.objects.get(device_id = id).delete()
     except Exception as e:
         print(str(e))
     return
@@ -305,8 +305,8 @@ def client_unsubscribe_from_broker_handler(id):
     # in case they disconnect unexpectedly (e.g. loss of wifi)
     print("Client unsubscribed:   %s" % id)
     try:
-        ConnectedDevice.objects.get(_id = id).delete()
-        OfflineDevice(_id = id).save()
+        ConnectedDevice.objects.get(device_id = id).delete()
+        OfflineDevice(device_id = id).save()
     except Exception as e:
         print(str(e))
     return
