@@ -104,9 +104,11 @@ $(document).ready(function () {
     }
     var xMin = d3.min(data, function(d) { return d.accelDate; });
     var xMax = d3.max(data, function(d) { return d.accelDate; });
-    console.log("xmin: " + xMin);
-    console.log("xmax: " + xMax);
-    xAxis = d3.svg.axis().scale(xScale).tickValues([xMin,xMax]).tickFormat(format);
+    var xMid = new Date(xMin).getTime();
+    var temp = new Date(xMax).getTime();
+    temp = (xMid+temp)/2;
+    xMid = new Date(temp);
+    xAxis = d3.svg.axis().scale(xScale).tickValues([xMin,xMid,xMax]).tickFormat(format);
     yAxis = d3.svg.axis().scale(yScale).orient("left");
     vis.append("svg:g").attr("class","axis").attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")").call(xAxis);
     vis.append("svg:g").attr("class","axis").attr("transform", "translate(" + (MARGINS.left) + ",0)").call(yAxis);
