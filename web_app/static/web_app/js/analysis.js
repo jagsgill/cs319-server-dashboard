@@ -2,7 +2,7 @@ $(document).ready(function () {
 
   $("#startDate").datepicker();
   $("#endDate").datepicker();
-  $(".chart").append("<svg id='lineChart' width="+ $(window).width()/1.5 +" height='600'></svg>");
+  $(".chart").append("<svg id='lineChart' width="+ $(window).width()/1.5 +" height='650'></svg>");
   $("#liveUpdate").prop('checked',true);
   $("#dateError").hide();
   generateGraph();
@@ -11,6 +11,7 @@ $(document).ready(function () {
   var sensorType;
   var yAxVal;
   var titleText;
+  var format = d3.time.format("%b %d, %Y - %H:%M:%S");
   $('#generateGraph').on('click', function (ev) {
     generateGraph();
   });
@@ -66,27 +67,21 @@ $(document).ready(function () {
     var color = d3.scale.category10();
     var vis = d3.select("#lineChart"),
     WIDTH = $(".chart").width(),
-    HEIGHT = 500,
+    HEIGHT = 550,
     MARGINS = {
         top: 50,
-        right: 20,
+        right: 50,
         bottom: 50,
-        left: 50
+        left: 100
     },
 
     lSpace = WIDTH/dataGroup.length;
-    var format = d3.time.format("%H:%M:%S"); 
     xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
         return d.accelDate;
     }), d3.max(data, function(d) {
         return d.accelDate;
     })]);
     
-//    xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(data, function(d) {
-//                            return d.accelTime;
-//                        }), d3.max(data, function(d) {
-//                            return d.accelTime;
-//                        })]);
     yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
     						if(sensorType==2){
     							return 0;
@@ -100,7 +95,20 @@ $(document).ready(function () {
                             return d.accel;
     						}
                         })]);
-    xAxis = d3.svg.axis().scale(xScale).ticks(5).tickFormat(format);
+    if(data.length===0) {
+    	vis.append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", "translate("+ (WIDTH/2) +","+(HEIGHT/2)+")")
+        .style("font-size", "30px")
+        .text("No Data Available");
+    }
+    var xMin = d3.min(data, function(d) { return d.accelDate; });
+    var xMax = d3.max(data, function(d) { return d.accelDate; });
+    var xMid = new Date(xMin).getTime();
+    var temp = new Date(xMax).getTime();
+    temp = (xMid+temp)/2;
+    xMid = new Date(temp);
+    xAxis = d3.svg.axis().scale(xScale).tickValues([xMin,xMid,xMax]).tickFormat(format);
     yAxis = d3.svg.axis().scale(yScale).orient("left");
     vis.append("svg:g").attr("class","axis").attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")").call(xAxis);
     vis.append("svg:g").attr("class","axis").attr("transform", "translate(" + (MARGINS.left) + ",0)").call(yAxis);
@@ -113,8 +121,6 @@ $(document).ready(function () {
     })
     .interpolate("basis");
     vis.append("text")
-//    .attr("text-anchor", "start")  
-//    .attr("transform", "translate("+ 0 +","+MARGINS.top/2+")")
     .attr("text-anchor", "middle")
     .attr("transform", "translate("+ 15 +","+(HEIGHT/2)+")rotate(-90)")
     .style("font-size", "20px")
@@ -129,13 +135,6 @@ $(document).ready(function () {
     .attr("transform", "translate("+ (WIDTH/2) +","+MARGINS.top+")")
     .style("font-size", "30px")
     .text(titleText);
-    if(data.length===0) {
-    	vis.append("text")
-        .attr("text-anchor", "middle")
-        .attr("transform", "translate("+ (WIDTH/2) +","+(HEIGHT/2)+")")
-        .style("font-size", "30px")
-        .text("No Data Available");
-    }
     var color;
     dataGroup.forEach(function(d,i) {
                         vis.append('svg:path')
@@ -205,7 +204,7 @@ $(document).ready(function () {
     newData.push({"device_id":"Z","accelTime":d.accelTime,"accel":d.zAccel,"accelDate":new Date(d.accelTime)});
     });
     updateGraph(newData);
-    console.log(newData);});
+    });
   }
   
   function getDataBattery() {
@@ -235,11 +234,7 @@ $(document).ready(function () {
     newData.push({"device_id":"Battery_Life","accelTime":d.timestamp,"accel":d.battery_level,"accelDate":new Date(d.timestamp)});
     });
     updateGraph(newData);
-    console.log(newData);});
-  }
-  
-  function dateToUnix(){
-	  
+    });
   }
 
 });
