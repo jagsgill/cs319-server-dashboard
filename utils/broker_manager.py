@@ -168,7 +168,7 @@ def combined_data_handler(client_id, content):
             handler = accel_msg_handler
             continue
         elif 'Location' in msg:
-            handler = location_msg_handler()
+            handler = location_msg_handler
             continue
         elif 'Battery_Level' in msg:
             handler = battery_msg_handler
