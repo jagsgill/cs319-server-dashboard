@@ -170,5 +170,9 @@ STATICFILES_DIRS = (
     ),
 )
 
+ENV_PATH = os.path.abspath(os.path.dirname(__file__))
+MEDIA_ROOT = os.path.join(ENV_PATH, '../file/')
+MEDIA_URL = "file/"
+
 # LOGIN_URL = '/'
 # LOGIN_REDIRECT_URL = '/'

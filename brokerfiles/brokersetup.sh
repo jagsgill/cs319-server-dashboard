@@ -36,7 +36,7 @@ sudo apt-get install mosquitto-clients --yes
 # Reference:
 #   https://cloud.google.com/compute/docs/metadata
 
-IP=$(gcloud compute instances list --format=text | grep '^networkInterfaces\[[0-9]\+\]\.accessConfigs\[[0-9]\+\]\.natIP:' | sed 's/^.* //g')
+IP=$(hostname --ip-address)
 
 # We will use the IP address instead of a domain in the SSL certificates
 # So we need to use a modified openssl.cnf file
@@ -255,25 +255,25 @@ mosquitto_pub --retain -h $IP -p 1883 -t "broker/ssl/client/cert" -u "broker" -P
 
 # Also serve these files using public HTTP
 
-KV=$(gcloud compute project-info describe | grep name) # gives 'name: <project name>'
-PROJECTNAME=${KV#*: }   # use Bash parameter expansion to extract the project name
+#KV=$(gcloud compute project-info describe | grep name) # gives 'name: <project name>'
+#PROJECTNAME=${KV#*: }   # use Bash parameter expansion to extract the project name
 
 # create a Google Cloud Storage bucket with this unique name (if it doesn't already exist
-BUCKET=gs://ssl-team10-cs319
-sudo gsutil mb -p $PROJECTNAME          $BUCKET
+#BUCKET=gs://ssl-team10-cs319
+#sudo gsutil mb -p $PROJECTNAME          $BUCKET
 
 # upload the files to the bucket
-sudo gsutil cp $PATH_CA"/"$CACERT       $BUCKET
-sudo gsutil cp $PATH_SSL"/"$CLIENTKEY   $BUCKET
-sudo gsutil cp $PATH_SSL"/"$CLIENTCERT  $BUCKET
+#sudo gsutil cp $PATH_CA"/"$CACERT       $BUCKET
+#sudo gsutil cp $PATH_SSL"/"$CLIENTKEY   $BUCKET
+#sudo gsutil cp $PATH_SSL"/"$CLIENTCERT  $BUCKET
 
-PATH_IP=$PATH_BASE
+PATH_IP='~/cs319-server-dashboard/file'
 IPFILE=broker_ips.txt
 PATH_IPFILE=$PATH_IP"/"$IPFILE
 echo "$IP" > $PATH_IPFILE
 
-sudo gsutil cp $PATH_IPFILE $BUCKET
+#sudo gsutil cp $PATH_IPFILE $BUCKET
 
 # grant read access to anyone for all files in this bucket
-sudo gsutil acl ch -u AllUsers:R $BUCKET/*
+#sudo gsutil acl ch -u AllUsers:R $BUCKET/*
 
